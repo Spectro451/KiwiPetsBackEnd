@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToOne, ManyToOne, OneToMany } from 'typeorm';
 import { Refugio } from '../refugio/refugio.entity';
 import { Notificaciones } from '../notificaciones/notificaciones.entity';
+import { Adoptante } from '../adoptante/adoptante.entity';
 
 export enum TipoUsuario {
   ADOPTANTE = 'adoptante',
@@ -30,5 +31,6 @@ export class Usuario {
   @OneToMany(() => Notificaciones, notificacion => notificacion.usuario)
   notificaciones: Notificaciones[];
 
-
+  @OneToOne(() => Adoptante, adoptante => adoptante.usuario, { cascade: true })
+  adoptante: Adoptante;
 }

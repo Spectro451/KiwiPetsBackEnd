@@ -1,4 +1,45 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { UsuarioService } from './usuario.service';
+import { Usuario } from './usuario.entity';
 
 @Controller('usuario')
-export class UsuarioController {}
+export class UsuarioController {
+  constructor(private readonly usuarioService: UsuarioService){}
+
+  @Get()
+  async findAll(): Promise<Usuario[]> {
+    return await this.usuarioService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id:number): Promise<Usuario>{
+    const usuario = await this.usuarioService.findOne(id);
+    if(!usuario){
+      throw new NotFoundException(`Usuario con ID ${id} no encontrada`);
+    }
+    return usuario;
+  }
+
+  @Post()
+  async create(@Body() usuarioData: Partial<Usuario>): Promise<Usuario> {
+    return await this.usuarioService.create(usuarioData);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() usuarioData: Partial<Usuario>
+  ): Promise<Usuario> {
+    const updated = await this.usuarioService.update(id, usuarioData);
+    if (!updated) {
+      throw new NotFoundException(`No se pudo actualizar la usuario con ID ${id}`);
+    }
+    return updated;
+  }
+
+  @Delete(':id')
+  async remove(@Param('id') id: number): Promise<{ message: string }> {
+    await this.usuarioService.remove(id);
+    return { message: `Usuario con ID ${id} eliminada correctamente` };
+  }
+}

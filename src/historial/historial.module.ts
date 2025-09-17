@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { HistorialClinicoService } from './historial.service';
-import { HistorialClinicoController } from './historial.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { HistorialService } from './historial.service';
+import { HistorialController } from './historial.controller';
+import { Historial } from './historial.entity';
+import { Mascota } from '../mascota/mascota.entity';
 
 @Module({
-  providers: [HistorialClinicoService],
-  controllers: [HistorialClinicoController]
+  imports: [TypeOrmModule.forFeature([Historial, Mascota])],
+  providers: [HistorialService],
+  controllers: [HistorialController],
 })
-export class HistorialClinicoModule {}
+export class HistorialModule {}

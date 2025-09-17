@@ -13,12 +13,12 @@ export class AdopcionService {
     private readonly mascotaRepository: Repository<Mascota>,
   ) {}
 
-  // Get todas las adopciones, incluyendo relaciones
+  // Getall
   async findAll(): Promise<Adopcion[]> {
     return this.adopcionRepository.find({ relations: ['mascota', 'adoptante'] });
   }
 
-  // Get adopción por id
+  // GetId
   async findOne(id: number): Promise<Adopcion> {
     const adopcion = await this.adopcionRepository.findOne({
       where: { id },
@@ -48,8 +48,6 @@ export class AdopcionService {
       await this.mascotaRepository.save(mascota);
     }
 
-    // Si la mascota estaba EN_PROCESO, se permite la adopción sin cambios
-
     // Crear la adopción con estado EN_PROCESO
     const nuevaAdopcion = this.adopcionRepository.create({
       ...data,
@@ -58,7 +56,7 @@ export class AdopcionService {
     return this.adopcionRepository.save(nuevaAdopcion);
   }
 
-  // Actualizar adopción
+  //Update
   async update(id: number, data: Partial<Adopcion>): Promise<Adopcion> {
     const adopcion = await this.findOne(id);
 
@@ -68,12 +66,29 @@ export class AdopcionService {
       if (!mascota) throw new NotFoundException(`Mascota con id ${adopcion.mascota.id_mascota} no encontrada`);
 
       // Reglas de actualización:
-      // - ACEPTADA → mascota pasa a ADOPTADO
-      // - RECHAZADA → mascota vuelve a DISPONIBLE
-      if (data.estado === EstadoAdopcion.ACEPTADA) mascota.estado_adopcion = Estado.ADOPTADO;
-      if (data.estado === EstadoAdopcion.RECHAZADA) mascota.estado_adopcion = Estado.DISPONIBLE;
+      if (data.estado === EstadoAdopcion.ACEPTADA) {
+        // La mascota pasa a ADOPTADO
+        mascota.estado_adopcion = Estado.ADOPTADO;
+        await this.mascotaRepository.save(mascota);
 
-      await this.mascotaRepository.save(mascota);
+        // Rechazar todas las demás adopciones en proceso
+        const otrasAdopciones = await this.adopcionRepository.find({
+          where: { mascota: { id_mascota: mascota.id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
+        });
+
+        for (const otra of otrasAdopciones) {
+          if (otra.id !== adopcion.id) {
+            otra.estado = EstadoAdopcion.RECHAZADA;
+            await this.adopcionRepository.save(otra);
+          }
+        }
+      }
+
+      if (data.estado === EstadoAdopcion.RECHAZADA) {
+        // La mascota vuelve a DISPONIBLE
+        mascota.estado_adopcion = Estado.DISPONIBLE;
+        await this.mascotaRepository.save(mascota);
+      }
     }
 
     // Actualizar adopción con los nuevos datos
@@ -81,7 +96,8 @@ export class AdopcionService {
     return this.adopcionRepository.save(adopcion);
   }
 
-  // Eliminar adopción
+
+  // Delete
   async remove(id: number): Promise<void> {
     const adopcion = await this.findOne(id);
 

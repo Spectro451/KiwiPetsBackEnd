@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { RefugioService } from './refugio.service';
 import { RefugioController } from './refugio.controller';
-import { RefugioController } from './refugio.controller';
-import { RefugioService } from './refugio.service';
+import { Refugio } from './refugio.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Refugio])],
   providers: [RefugioService],
-  controllers: [RefugioController]
+  controllers: [RefugioController],
 })
 export class RefugioModule {}

@@ -14,7 +14,9 @@ export class MascotaService {
   ) {}
 
   async findAll(): Promise<Mascota[]> {
-    return this.mascotaRepository.find();
+    return this.mascotaRepository.find({
+      relations: ["vacunas", "historialClinico"],
+    });
   }
 
   async findOne(id_mascota: number): Promise<Mascota> {
@@ -31,21 +33,37 @@ export class MascotaService {
   async update(id_mascota: number, data: Partial<Mascota>): Promise<Mascota> {
     const mascota = await this.findOne(id_mascota);
 
-    // Si el estado de la mascota cambia a DISPONIBLE, liberar adopciones en proceso
-    if (data.estado_adopcion && data.estado_adopcion === Estado.DISPONIBLE && mascota.estado_adopcion !== Estado.DISPONIBLE) {
-      const adopcionesEnProceso = await this.adopcionRepository.find({
-        where: { mascota: { id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
-      });
+    // Cambio de estado desde mascota sobre adopciones
+    if (data.estado_adopcion && data.estado_adopcion !== mascota.estado_adopcion) {
+      if (data.estado_adopcion === Estado.DISPONIBLE) {
+        // Si vuelve a DISPONIBLE → todas las adopciones en proceso quedan RECHAZADAS
+        const adopcionesEnProceso = await this.adopcionRepository.find({
+          where: { mascota: { id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
+        });
 
-      for (const adopcion of adopcionesEnProceso) {
-        adopcion.estado = EstadoAdopcion.RECHAZADA; // o actualizar según la regla de negocio
-        await this.adopcionRepository.save(adopcion);
+        for (const adopcion of adopcionesEnProceso) {
+          adopcion.estado = EstadoAdopcion.RECHAZADA;
+          await this.adopcionRepository.save(adopcion);
+        }
+      }
+
+      if (data.estado_adopcion === Estado.ADOPTADO) {
+        // Si pasa a ADOPTADO → rechazar también las demás en proceso
+        const adopcionesEnProceso = await this.adopcionRepository.find({
+          where: { mascota: { id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
+        });
+
+        for (const adopcion of adopcionesEnProceso) {
+          adopcion.estado = EstadoAdopcion.RECHAZADA;
+          await this.adopcionRepository.save(adopcion);
+        }
       }
     }
 
     Object.assign(mascota, data);
     return this.mascotaRepository.save(mascota);
   }
+
 
   async remove(id_mascota: number): Promise<void> {
     const mascota = await this.findOne(id_mascota);

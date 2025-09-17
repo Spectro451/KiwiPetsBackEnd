@@ -5,7 +5,7 @@ import { Historial } from './historial.entity';
 
 
 @Injectable()
-export class HistorialClinicoService {
+export class HistorialService {
   constructor(
     @InjectRepository(Historial)
     private readonly historialRepository: Repository<Historial>,

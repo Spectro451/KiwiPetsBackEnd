@@ -75,7 +75,7 @@ export class Mascota{
   personalidad:string;
 
   @Column({ type: 'varchar', nullable: true })
-  foto: string;
+  foto: string | null;
 
   @Column({type:"varchar",length:255})
   requisito_adopcion:string;

@@ -7,13 +7,35 @@ import { AdoptanteModule } from './adoptante/adoptante.module';
 import { RefugioModule } from './refugio/refugio.module';
 import { AdopcionModule } from './adopcion/adopcion.module';
 import { VacunasModule } from './vacunas/vacunas.module';
-import { HistorialClinicoModule } from './historial/historial.module';
+import { HistorialModule } from './historial/historial.module';
 import { FavoritosModule } from './favoritos/favoritos.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [MascotaModule, UsuarioModule, AdoptanteModule, RefugioModule, AdopcionModule, VacunasModule, HistorialClinicoModule, FavoritosModule, NotificacionesModule],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host:'localhost',
+      port:5432,
+      username:'postgres',
+      password:'0403',
+      database:'kiwiPets',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize:true,
+    }),
+    MascotaModule,
+    UsuarioModule,
+    AdoptanteModule,
+    RefugioModule,
+    AdopcionModule,
+    VacunasModule,
+    HistorialModule,
+    FavoritosModule,
+    NotificacionesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+

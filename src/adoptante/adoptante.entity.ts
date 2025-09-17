@@ -1,6 +1,7 @@
-import { Entity, PrimaryColumn,Column, OneToMany } from "typeorm";
+import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn } from "typeorm";
 import { Adopcion } from "../adopcion/adopcion.entity";
 import { Favoritos } from "../favoritos/favoritos.entity";
+import { Usuario } from "../usuario/usuario.entity";
 
 export enum Especie {
   GATO = 'gato',
@@ -66,5 +67,8 @@ export class Adoptante{
   @OneToMany(() => Favoritos, favorito => favorito.adoptante)
   favoritos: Favoritos[];
 
+  @OneToMany(() => Usuario, usuario => usuario.adoptante, { onDelete: 'CASCADE' })
+  @JoinColumn()
+  usuario: Usuario;
 
 }
