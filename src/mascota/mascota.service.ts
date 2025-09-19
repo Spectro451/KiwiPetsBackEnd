@@ -15,12 +15,12 @@ export class MascotaService {
 
   async findAll(): Promise<Mascota[]> {
     return this.mascotaRepository.find({
-      relations: ["vacunas", "historialClinico"],
+      relations: ["vacunas", "historialClinico","refugio"],
     });
   }
 
   async findOne(id_mascota: number): Promise<Mascota> {
-    const mascota = await this.mascotaRepository.findOne({ where: { id_mascota } });
+    const mascota = await this.mascotaRepository.findOne({ where: { id_mascota }, relations: ["vacunas", "historialClinico","refugio"] });
     if (!mascota) throw new NotFoundException(`Mascota con id ${id_mascota} no encontrada`);
     return mascota;
   }
