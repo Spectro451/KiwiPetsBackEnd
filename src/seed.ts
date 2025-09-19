@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { Usuario, TipoUsuario } from './usuario/usuario.entity';
 import { Refugio } from './refugio/refugio.entity';
-import { Adoptante, Especie, Sexo, Edad, Vivienda } from './adoptante/adoptante.entity';
+import { Adoptante, EspeciePreferida, Sexo, Edad, Vivienda } from './adoptante/adoptante.entity';
 import { Mascota, Tamaño, Especie as EspecieMascota, Genero, Estado as EstadoMascota } from './mascota/mascota.entity';
 import { Vacunas } from './vacunas/vacunas.entity';
 import { Historial } from './historial/historial.entity';
@@ -106,7 +106,7 @@ async function runSeed() {
       telefono: adoptantesData[i].telefono,
       direccion: adoptantesData[i].direccion,
       cantidad_mascotas: adoptantesData[i].cantidad_mascotas,
-      especie_preferida: Especie.PERRO,
+      especie_preferida: EspeciePreferida.PERRO,
       tipo_vivienda: Vivienda.CASA_PATIO,
       sexo: Sexo.CUALQUIERA,
       edad_buscada: Edad.ADULTO,

@@ -3,28 +3,28 @@ import { Adopcion } from "../adopcion/adopcion.entity";
 import { Favoritos } from "../favoritos/favoritos.entity";
 import { Usuario } from "../usuario/usuario.entity";
 
-export enum Especie {
-  GATO = 'gato',
-  PERRO = 'perro',
-  AVE='ave',
-  REPTIL='reptil',
-  CUALQUIERA='cualquiera',
+export enum EspeciePreferida {
+  GATO = 'Gato',
+  PERRO = 'Perro',
+  AVE='Ave',
+  REPTIL='Reptil',
+  CUALQUIERA='Cualquiera',
 }
 export enum Vivienda {
-  CASA_PATIO = 'casa con patio',
-  CASA_NO_PATIO = 'casa sin patio',
-  DEPTO_PATIO = 'departamento con patio',
-  DEPTO_NO_PATIO = 'departamento sin patio',
+  CASA_PATIO = 'Casa con patio',
+  CASA_NO_PATIO = 'Casa sin patio',
+  DEPTO_PATIO = 'Departamento con patio',
+  DEPTO_NO_PATIO = 'Departamento sin patio',
 }
 export enum Sexo {
-  MASCULINO = 'masculino',
-  FEMENINO = 'femenino',
-  CUALQUIERA = 'cualquiera',
+  MASCULINO = 'Masculino',
+  FEMENINO = 'Femenino',
+  CUALQUIERA = 'Cualquiera',
 }
 export enum Edad {
-  CACHORRO = 'cachorro',
-  JOVEN = 'joven',
-  ADULTO = 'adulto',
+  CACHORRO = 'Cachorro',
+  JOVEN = 'Joven',
+  ADULTO = 'Adulto',
 }
 @Entity()
 export class Adoptante{
@@ -46,8 +46,8 @@ export class Adoptante{
   @Column({type:"int"})
   cantidad_mascotas:number;
 
-  @Column({type:'enum', enum:Especie})
-  especie_preferida: Especie;
+  @Column({type:'enum', enum:EspeciePreferida})
+  especie_preferida: EspeciePreferida;
 
   @Column({type:'enum', enum:Vivienda})
   tipo_vivienda: Vivienda;
@@ -62,10 +62,10 @@ export class Adoptante{
   motivo_adopcion: string;
 
   @OneToMany(() => Adopcion, adopcion => adopcion.adoptante)
-  adopciones: Adopcion[];
+  adopciones?: Adopcion[];
 
   @OneToMany(() => Favoritos, favorito => favorito.adoptante)
-  favoritos: Favoritos[];
+  favoritos?: Favoritos[];
 
   @OneToMany(() => Usuario, usuario => usuario.adoptante, { onDelete: 'CASCADE' })
   @JoinColumn()

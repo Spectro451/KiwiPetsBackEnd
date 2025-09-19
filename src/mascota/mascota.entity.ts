@@ -6,25 +6,25 @@ import { Adopcion } from "../adopcion/adopcion.entity";
 import { Favoritos } from "../favoritos/favoritos.entity";
 
 export enum Tamaño{
-  PEQUEÑO ='pequeño',
-  MEDIANO ='mediano',
-  GRANDE='grande',
+  PEQUEÑO ='Pequeño',
+  MEDIANO ='Mediano',
+  GRANDE='Grande',
 }
 export enum Especie {
-  GATO = 'gato',
-  PERRO = 'perro',
-  AVE='ave',
-  REPTIL='reptil',
-  OTRO='otro',
+  GATO = 'Gato',
+  PERRO = 'Perro',
+  AVE='Ave',
+  REPTIL='Reptil',
+  OTRO='Otro',
 }
 export enum Genero {
-  MASCULINO = 'masculino',
-  FEMENINO = 'femenino',
+  MASCULINO = 'Masculino',
+  FEMENINO = 'Femenino',
 }
 export enum Estado{
-  DISPONIBLE ='disponible',
-  EN_PROCESO ='en proceso',
-  ADOPTADO='adoptado',
+  DISPONIBLE ='Disponible',
+  EN_PROCESO ='En proceso',
+  ADOPTADO='Adoptado',
 }
 @Entity()
 export class Mascota{
@@ -59,8 +59,8 @@ export class Mascota{
   @Column({ type: "bool", default: false })
   posee_descendencia: boolean;
 
-  @Column({type:"int"})
-  veces_adoptado:number;
+  @Column({ type: "int", default: 0 })
+  veces_adoptado: number;
 
   @Column({ type: 'timestamp' })
   fecha_ingreso: Date;
@@ -75,7 +75,7 @@ export class Mascota{
   personalidad:string;
 
   @Column({ type: 'varchar', nullable: true })
-  foto: string | null;
+  foto?: string | null;
 
   @Column({type:"varchar",length:255})
   requisito_adopcion:string;
@@ -87,16 +87,14 @@ export class Mascota{
   refugio:Refugio; 
 
   @OneToMany(()=>Vacunas, vacunas=>vacunas.mascota, { cascade: true })
-  vacunas:Vacunas[]
+  vacunas?:Vacunas[]
 
   @OneToMany(() => Historial, historial => historial.mascota, { cascade: true })
-  historialClinico: Historial[];
+  historialClinico?: Historial[];
 
   @OneToMany(() => Adopcion, adopcion => adopcion.mascota)
-  adopciones: Adopcion[];
+  adopciones?: Adopcion[];
 
   @OneToMany(() => Favoritos, favorito => favorito.mascota)
-  favoritos: Favoritos[];
-
-
+  favoritos?: Favoritos[];
 }

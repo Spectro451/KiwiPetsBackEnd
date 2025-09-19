@@ -4,8 +4,8 @@ import { Notificaciones } from '../notificaciones/notificaciones.entity';
 import { Adoptante } from '../adoptante/adoptante.entity';
 
 export enum TipoUsuario {
-  ADOPTANTE = 'adoptante',
-  REFUGIO = 'refugio',
+  ADOPTANTE = 'Adoptante',
+  REFUGIO = 'Refugio',
 }
 
 @Entity()
@@ -25,12 +25,13 @@ export class Usuario {
   @Column({ type: 'bool', default: false })
   admin: boolean;
 
-  @OneToOne(() => Refugio, refugio => refugio.usuario)
-  refugio: Refugio;
-
   @OneToMany(() => Notificaciones, notificacion => notificacion.usuario)
-  notificaciones: Notificaciones[];
+  notificaciones?: Notificaciones[];
 
-  @OneToOne(() => Adoptante, adoptante => adoptante.usuario, { cascade: true })
-  adoptante: Adoptante;
+  @OneToOne(() => Adoptante, adoptante => adoptante.usuario, { cascade: true, nullable: true })
+  adoptante?: Adoptante;
+
+  @OneToOne(() => Refugio, refugio => refugio.usuario, { cascade: true, nullable: true })
+  refugio?: Refugio;
+
 }

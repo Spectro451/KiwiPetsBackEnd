@@ -27,5 +27,5 @@ export class Refugio {
   usuario: Usuario;
 
   @OneToMany(()=>Mascota,mascota=>mascota.refugio)
-  mascotas:Mascota[];
+  mascotas?:Mascota[];
 }

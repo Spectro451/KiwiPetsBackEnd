@@ -3,9 +3,9 @@ import { Adoptante } from "../adoptante/adoptante.entity";
 import { Mascota } from "../mascota/mascota.entity";
 
 export enum EstadoAdopcion {
-  EN_PROCESO = "en proceso",
-  ACEPTADA = "aceptada",
-  RECHAZADA = "rechazada",
+  EN_PROCESO = "En proceso",
+  ACEPTADA = "Aceptada",
+  RECHAZADA = "Rechazada",
 }
 
 @Entity()
