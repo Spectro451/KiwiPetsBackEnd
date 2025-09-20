@@ -1,11 +1,14 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { MascotaService } from './mascota.service';
 import { Mascota } from './mascota.entity';
+import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 
 @Controller('mascota')
 export class MascotaController {
   constructor(private readonly mascotaService: MascotaService){}
 
+
+  @UseGuards(JwtAuthguard)
   @Get()
   async findAll(): Promise<Mascota[]> {
     return await this.mascotaService.findAll();

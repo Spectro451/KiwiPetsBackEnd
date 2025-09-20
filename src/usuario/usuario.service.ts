@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuario } from './usuario.entity';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsuarioService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    private readonly jwtService: JwtService,
   ) {}
 
   //Get
@@ -50,5 +52,24 @@ export class UsuarioService {
   async remove(id: number): Promise<void> {
     const usuario = await this.findOne(id);
     await this.usuarioRepository.remove(usuario);
+  }
+
+  //login
+  async loginUser(correo:string, contraseña:string): Promise<{id:number;tipo:string, token:string, admin:boolean}>{
+    const usuario = await this.usuarioRepository.findOne({where:{correo}});
+
+    if (!usuario){
+      throw new NotFoundException('Usuario no existe');
+    }
+    
+    const contraseñaValida = await bcrypt.compare(contraseña, usuario.contraseña);
+    if (!contraseñaValida){
+      throw new NotFoundException('Correo o contraseña incorrectos');
+    }
+    
+    const payload = {id:usuario.id, tipo:usuario.tipo, admin:usuario.admin};
+    const token = this.jwtService.sign(payload);
+
+    return {token,id:usuario.id, tipo:usuario.tipo, admin:usuario.admin};
   }
 }

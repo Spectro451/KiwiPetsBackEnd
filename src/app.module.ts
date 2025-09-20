@@ -11,6 +11,7 @@ import { HistorialModule } from './historial/historial.module';
 import { FavoritosModule } from './favoritos/favoritos.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AccesoTotal } from './auth/pruebas.guard';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     NotificacionesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AccesoTotal],
 })
 export class AppModule {}
 

@@ -1,11 +1,13 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { Usuario } from './usuario.entity';
+import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 
 @Controller('usuario')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService){}
 
+  
   @Get()
   async findAll(): Promise<Usuario[]> {
     return await this.usuarioService.findAll();
@@ -41,5 +43,11 @@ export class UsuarioController {
   async remove(@Param('id') id: number): Promise<{ message: string }> {
     await this.usuarioService.remove(id);
     return { message: `Usuario con ID ${id} eliminada correctamente` };
+  }
+
+  @Post('login')
+  async login(@Body() body:{correo:string;contraseña:string}){
+    const { correo, contraseña} = body;
+    return await this.usuarioService.loginUser(correo,contraseña)
   }
 }
