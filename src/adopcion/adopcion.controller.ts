@@ -1,14 +1,25 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { AdopcionService } from './adopcion.service';
 import { Adopcion } from './adopcion.entity';
+import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('adopcion')
 export class AdopcionController {
   constructor(private readonly adopcionService: AdopcionService) {}
 
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Refugio')
   @Get()
-  async findAll(): Promise<Adopcion[]> {
-    return await this.adopcionService.findAll();
+  async findAll(@Request() request): Promise<Adopcion[]> {
+    if (request.user.admin) {
+      return await this.adopcionService.findAll();
+    }
+    if (request.user.tipo === 'Refugio') {
+      return await this.adopcionService.findByRefugio(request.user.id);
+    }
+    throw new ForbiddenException('No tienes permiso wuaja');
   }
 
   @Get(':id')

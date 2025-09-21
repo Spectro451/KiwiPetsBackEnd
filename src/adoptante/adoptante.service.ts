@@ -17,7 +17,7 @@ export class AdoptanteService {
   
     //GetId
     async findOne(rut:string): Promise<Adoptante> {
-      const adoptante = await this.adoptanteRepository.findOne({where:{rut}});
+      const adoptante = await this.adoptanteRepository.findOne({where:{rut},relations:['usuario']});
       if (!adoptante) throw new NotFoundException(`Adoptante con rut ${rut} no encontrada`);
       return adoptante;
     }

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Adopcion, EstadoAdopcion } from './adopcion.entity';
 import { Mascota, Estado } from '../mascota/mascota.entity';
 
@@ -15,7 +15,9 @@ export class AdopcionService {
 
   // Getall
   async findAll(): Promise<Adopcion[]> {
-    return this.adopcionRepository.find({ relations: ['mascota', 'adoptante'] });
+    return this.adopcionRepository.find({
+      relations: ['mascota', 'mascota.refugio', 'adoptante'],
+    });
   }
 
   // GetId
@@ -51,6 +53,7 @@ export class AdopcionService {
     // Crear la adopción con estado EN_PROCESO
     const nuevaAdopcion = this.adopcionRepository.create({
       ...data,
+      refugio:mascota.refugio,
       estado: EstadoAdopcion.EN_PROCESO
     });
     return this.adopcionRepository.save(nuevaAdopcion);
@@ -101,16 +104,27 @@ export class AdopcionService {
   async remove(id: number): Promise<void> {
     const adopcion = await this.findOne(id);
 
-    // Si estaba en proceso, liberar la mascota (solo si no fue adoptada)
+    // Si estaba en proceso, dejar mascota como disponible
     if (adopcion.estado === EstadoAdopcion.EN_PROCESO) {
       const mascota = await this.mascotaRepository.findOneBy({ id_mascota: adopcion.mascota.id_mascota });
       if (mascota && mascota.estado_adopcion !== Estado.ADOPTADO) {
-        mascota.estado_adopcion = Estado.DISPONIBLE;
-        await this.mascotaRepository.save(mascota);
+        // Verificar si hay otras adopciones EN_PROCESO para la misma mascota
+        const otrasEnProceso = await this.adopcionRepository.count({
+          where: { mascota: { id_mascota: mascota.id_mascota }, estado: EstadoAdopcion.EN_PROCESO, id: Not(adopcion.id) }
+        });
+        if (otrasEnProceso === 0) {
+          mascota.estado_adopcion = Estado.DISPONIBLE;
+          await this.mascotaRepository.save(mascota);
+        }
       }
     }
+  }
 
-    // Eliminar adopción
-    await this.adopcionRepository.remove(adopcion);
+  //busca por refugio
+  async findByRefugio(refugioId: number): Promise<Adopcion[]> {
+    return this.adopcionRepository.find({
+      where: { refugio: { id: refugioId } },
+      relations: ['mascota', 'adoptante'],
+    });
   }
 }

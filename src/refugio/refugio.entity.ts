@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Usuario } from "../usuario/usuario.entity";
 import { Mascota } from "../mascota/mascota.entity";
+import { Adopcion } from "../adopcion/adopcion.entity";
 
 @Entity()
 export class Refugio {
@@ -28,4 +29,7 @@ export class Refugio {
 
   @OneToMany(()=>Mascota,mascota=>mascota.refugio)
   mascotas?:Mascota[];
+
+  @OneToMany(() => Adopcion, adopcion => adopcion.refugio)
+  adopciones?: Adopcion[];
 }

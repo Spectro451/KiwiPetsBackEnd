@@ -347,10 +347,25 @@ async function runSeed() {
     { adoptante: adoptantes[3], mascota: mascotas[3], fecha_solicitud: new Date("2025-06-25"), estado: EstadoAdopcion.EN_PROCESO },
     { adoptante: adoptantes[4], mascota: mascotas[4], fecha_solicitud: new Date("2025-05-30"), estado: EstadoAdopcion.EN_PROCESO },
   ];
+
   for (const ad of adopcionesSeed) {
+    // Asegurarnos de tener la mascota con la relación refugio cargada (por si el objeto en memoria no incluye relaciones)
+    const mascotaConRefugio = await mascotaRepo.findOne({
+      where: { id_mascota: ad.mascota.id_mascota },
+      relations: ['refugio'],
+    });
+
+    if (!mascotaConRefugio) {
+      throw new Error(`Seed: mascota con id ${ad.mascota.id_mascota} no encontrada al crear adopcion`);
+    }
+    if (!mascotaConRefugio.refugio) {
+      throw new Error(`Seed: la mascota id ${ad.mascota.id_mascota} no tiene refugio asociado`);
+    }
+
     await adopcionRepo.save(adopcionRepo.create({
       adoptante: ad.adoptante,
-      mascota: ad.mascota,
+      mascota: mascotaConRefugio,
+      refugio: mascotaConRefugio.refugio,    // <<-- asignamos el refugio obligatorio
       fecha_solicitud: ad.fecha_solicitud,
       estado: ad.estado,
     }));

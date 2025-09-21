@@ -12,7 +12,9 @@ export class UsuarioService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    @InjectRepository(Refugio)
     private readonly refugioRepository: Repository<Refugio>,
+    @InjectRepository(Adoptante)
     private readonly adoptanteRepository: Repository<Adoptante>,
     private readonly jwtService: JwtService,
   ) {}

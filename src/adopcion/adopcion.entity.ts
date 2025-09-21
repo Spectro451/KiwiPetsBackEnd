@@ -1,6 +1,7 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Adoptante } from "../adoptante/adoptante.entity";
 import { Mascota } from "../mascota/mascota.entity";
+import { Refugio } from "../refugio/refugio.entity";
 
 export enum EstadoAdopcion {
   EN_PROCESO = "En proceso",
@@ -18,6 +19,9 @@ export class Adopcion {
 
   @ManyToOne(() => Mascota, mascota => mascota.adopciones, { onDelete: 'CASCADE' })
   mascota: Mascota;
+
+  @ManyToOne(() => Refugio, refugio => refugio.adopciones, { nullable: false })
+  refugio: Refugio;
 
   @Column({ type: 'timestamp' })
   fecha_solicitud: Date;

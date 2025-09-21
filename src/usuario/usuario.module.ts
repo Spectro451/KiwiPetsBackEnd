@@ -5,10 +5,12 @@ import { UsuarioController } from './usuario.controller';
 import { Usuario } from './usuario.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/auth/jwt.strategy';
+import { Refugio } from 'src/refugio/refugio.entity';
+import { Adoptante } from 'src/adoptante/adoptante.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Usuario]),
+    TypeOrmModule.forFeature([Usuario, Refugio, Adoptante]),
     JwtModule.register({
       secret:'kiwiPotos',
       signOptions:{expiresIn:3600}
