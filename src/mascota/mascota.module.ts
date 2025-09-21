@@ -9,5 +9,6 @@ import { Adopcion } from '../adopcion/adopcion.entity';
   imports: [TypeOrmModule.forFeature([Mascota, Adopcion])],
   providers: [MascotaService],
   controllers: [MascotaController],
+  exports:[MascotaService],
 })
 export class MascotaModule {}

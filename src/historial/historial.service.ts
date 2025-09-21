@@ -10,7 +10,8 @@ export class HistorialService {
   constructor(
     @InjectRepository(Historial)
     private readonly historialRepository: Repository<Historial>,
-    private readonly mascotaRepostitory:Repository<Mascota>,
+    @InjectRepository(Mascota)
+    private readonly mascotaRepository: Repository<Mascota>,
   ) {}
 
   async findAll(): Promise<Historial[]> {
@@ -24,7 +25,7 @@ export class HistorialService {
   }
 
   async create(mascotaId:number, data: Partial<Historial>): Promise<Historial> {
-    const mascota = await this.mascotaRepostitory.findOne({
+    const mascota = await this.mascotaRepository.findOne({
       where:{id_mascota:mascotaId},
     })
     if(!mascota){
