@@ -17,7 +17,7 @@ export class RefugioService {
 
   //GetId
   async findOne(id: number): Promise<Refugio> {
-    const refugio = await this.refugioRepository.findOne({ where: { id } });
+    const refugio = await this.refugioRepository.findOne({ where: { id }, relations:['usuario'] });
     if (!refugio) throw new NotFoundException(`Refugio con id ${id} no encontrada`);
     return refugio;
   }

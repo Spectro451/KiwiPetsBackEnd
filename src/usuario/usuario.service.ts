@@ -1,15 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Usuario } from './usuario.entity';
+import { TipoUsuario, Usuario } from './usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Refugio } from 'src/refugio/refugio.entity';
+import { Adoptante } from 'src/adoptante/adoptante.entity';
 
 @Injectable()
 export class UsuarioService {
   constructor(
     @InjectRepository(Usuario)
     private readonly usuarioRepository: Repository<Usuario>,
+    private readonly refugioRepository: Repository<Refugio>,
+    private readonly adoptanteRepository: Repository<Adoptante>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -32,6 +36,14 @@ export class UsuarioService {
       data.contraseña = await bcrypt.hash(data.contraseña, 10);
     }
     const nuevoUsuario = this.usuarioRepository.create(data);
+    await this.usuarioRepository.save(nuevoUsuario);
+
+    if(nuevoUsuario.tipo===TipoUsuario.ADOPTANTE){
+      nuevoUsuario.adoptante = this.adoptanteRepository.create({usuario:nuevoUsuario});
+    } else if(nuevoUsuario.tipo===TipoUsuario.REFUGIO){
+      nuevoUsuario.refugio=this.refugioRepository.create({usuario:nuevoUsuario});
+    }
+
     return this.usuarioRepository.save(nuevoUsuario);
   }
 

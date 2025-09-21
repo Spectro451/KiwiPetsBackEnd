@@ -1,44 +1,78 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { RefugioService } from './refugio.service';
 import { Refugio } from './refugio.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
 
 @Controller('refugio')
 export class RefugioController {
   constructor(private readonly refugioService: RefugioService){}
 
   @Get()
-  async findAll(): Promise<Refugio[]> {
+  @UseGuards(JwtAuthguard)
+  async findAll(@Request() request): Promise<Refugio[]> {
+    if(!request.user.admin){
+      throw new ForbiddenException('No tienes permiso');
+    }
     return await this.refugioService.findAll();
   }
 
+  @UseGuards(JwtAuthguard,RolesGuard)
+  @Roles('Refugio')//solo refugio para que un adoptante no haga coso
   @Get(':id')
-  async findOne(@Param('id') id:number): Promise<Refugio>{
+  async findOne(@Param('id') id:number,@Request() request): Promise<Refugio>{
     const refugio = await this.refugioService.findOne(id);
     if(!refugio){
       throw new NotFoundException(`Refugio con ID ${id} no encontrada`);
     }
+
+    if(!request.user.admin && request.user.id !== refugio.usuario.id){
+      throw new ForbiddenException('No tienes permiso para ver este refugio');
+    }
     return refugio;
   }
 
+  @UseGuards(JwtAuthguard)
   @Post()
-  async create(@Body() refugioData: Partial<Refugio>): Promise<Refugio> {
+  async create(@Body() refugioData: Partial<Refugio>, @Request() request): Promise<Refugio> {
+    if(!request.user.admin){
+      throw new ForbiddenException('No tienes permiso');
+    }
     return await this.refugioService.create(refugioData);
   }
 
+  @UseGuards(JwtAuthguard,RolesGuard)
+  @Roles('Refugio')
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() refugioData: Partial<Refugio>
+    @Body() refugioData: Partial<Refugio>,
+    @Request() request,
   ): Promise<Refugio> {
-    const updated = await this.refugioService.update(id, refugioData);
-    if (!updated) {
+    const refugio = await this.refugioService.findOne(id);
+    if (!refugio) {
       throw new NotFoundException(`No se pudo actualizar la refugio con ID ${id}`);
     }
+
+    if(!request.user.admin && request.user.id !== refugio.usuario.id){
+      throw new ForbiddenException('No tienes permiso para editar este refugio');
+    }
+
+    const updated = await this.refugioService.update(id,refugioData)
     return updated;
   }
 
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Refugio')
   @Delete(':id')
-  async remove(@Param('id') id: number): Promise<{ message: string }> {
+  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+    const refugio = await this.refugioService.findOne(id);
+    if(!request.user.admin && request.user.id !== refugio.usuario.id){
+      throw new ForbiddenException('No tienes permiso para eliminar este refugio');
+    }
+
     await this.refugioService.remove(id);
     return { message: `Refugio con ID ${id} eliminada correctamente` };
   }

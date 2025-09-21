@@ -7,7 +7,6 @@ import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService){}
 
-  
   @Get()
   @UseGuards(JwtAuthguard)
   async findAll(@Request() request): Promise<Usuario[]> {
