@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Historial } from './historial.entity';
+import { Mascota } from 'src/mascota/mascota.entity';
 
 
 @Injectable()
@@ -9,6 +10,7 @@ export class HistorialService {
   constructor(
     @InjectRepository(Historial)
     private readonly historialRepository: Repository<Historial>,
+    private readonly mascotaRepostitory:Repository<Mascota>,
   ) {}
 
   async findAll(): Promise<Historial[]> {
@@ -21,8 +23,17 @@ export class HistorialService {
     return historial;
   }
 
-  async create(data: Partial<Historial>): Promise<Historial> {
-    const nuevoHistorial = this.historialRepository.create(data);
+  async create(mascotaId:number, data: Partial<Historial>): Promise<Historial> {
+    const mascota = await this.mascotaRepostitory.findOne({
+      where:{id_mascota:mascotaId},
+    })
+    if(!mascota){
+      throw new NotFoundException('Mascota no encontrada');
+    }
+    const nuevoHistorial = this.historialRepository.create({
+      ...data,
+      mascota,
+    });
     return this.historialRepository.save(nuevoHistorial);
   }
 
@@ -35,5 +46,13 @@ export class HistorialService {
   async remove(id: number): Promise<void> {
     const historial = await this.findOne(id);
     await this.historialRepository.remove(historial);
+  }
+
+  //buscar por mascota
+  async findByMascota(mascotaId:number):Promise<Historial[]>{
+    return this.historialRepository.find({
+      where:{mascota:{id_mascota:mascotaId}},
+      relations:['mascota'],
+    })
   }
 }
