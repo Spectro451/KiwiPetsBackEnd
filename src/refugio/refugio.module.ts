@@ -8,5 +8,6 @@ import { Refugio } from './refugio.entity';
   imports: [TypeOrmModule.forFeature([Refugio])],
   providers: [RefugioService],
   controllers: [RefugioController],
+  exports:[RefugioService],
 })
 export class RefugioModule {}

@@ -40,4 +40,11 @@ export class AdoptanteService {
       const adoptante = await this.findOne(rut);
       await this.adoptanteRepository.remove(adoptante);
     }
+
+    //busca por idUsuario
+    async findByUsuarioId(usuarioId: number): Promise<Adoptante | null> {
+      return this.adoptanteRepository.findOne({
+        where: { usuario: { id: usuarioId } },
+      });
+    }
 }

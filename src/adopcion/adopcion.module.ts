@@ -5,9 +5,15 @@ import { AdopcionController } from './adopcion.controller';
 import { Adopcion } from './adopcion.entity';
 import { Mascota } from '../mascota/mascota.entity';
 import { Adoptante } from '../adoptante/adoptante.entity';
+import { RefugioModule } from 'src/refugio/refugio.module';
+import { AdoptanteModule } from 'src/adoptante/adoptante.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Adopcion, Mascota, Adoptante])],
+  imports: [
+    TypeOrmModule.forFeature([Adopcion, Mascota, Adoptante]),
+    RefugioModule,
+    AdoptanteModule,
+  ],
   providers: [AdopcionService],
   controllers: [AdopcionController],
 })

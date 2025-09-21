@@ -8,5 +8,6 @@ import { Adoptante } from './adoptante.entity';
   imports: [TypeOrmModule.forFeature([Adoptante])],
   providers: [AdoptanteService],
   controllers: [AdoptanteController],
+  exports:[AdoptanteService],
 })
 export class AdoptanteModule {}

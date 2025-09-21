@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
+import { Mascota } from 'src/mascota/mascota.entity';
 
 @Controller('refugio')
 export class RefugioController {
@@ -75,5 +76,12 @@ export class RefugioController {
 
     await this.refugioService.remove(id);
     return { message: `Refugio con ID ${id} eliminada correctamente` };
+  }
+
+  @Get('mascotas')
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Refugio')
+  async getMisMascotas(@Request() request): Promise<Mascota[]> {
+    return this.refugioService.findMascotasByUsuario(request.user.id);
   }
 }

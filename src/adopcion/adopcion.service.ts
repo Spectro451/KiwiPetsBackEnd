@@ -53,7 +53,9 @@ export class AdopcionService {
     // Crear la adopción con estado EN_PROCESO
     const nuevaAdopcion = this.adopcionRepository.create({
       ...data,
+      mascota,
       refugio:mascota.refugio,
+      fecha_solicitud:new Date(),
       estado: EstadoAdopcion.EN_PROCESO
     });
     return this.adopcionRepository.save(nuevaAdopcion);
@@ -125,6 +127,13 @@ export class AdopcionService {
     return this.adopcionRepository.find({
       where: { refugio: { id: refugioId } },
       relations: ['mascota', 'adoptante'],
+    });
+  }
+
+  async findByAdoptante(adoptanteRut: string): Promise<Adopcion[]> {
+    return this.adopcionRepository.find({
+      where: { adoptante: { rut: adoptanteRut } },
+      relations: ['mascota', 'mascota.refugio'],
     });
   }
 }
