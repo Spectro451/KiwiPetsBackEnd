@@ -69,4 +69,12 @@ export class MascotaService {
     const mascota = await this.findOne(id_mascota);
     await this.mascotaRepository.remove(mascota);
   }
+
+  //filtra por refugio
+  async findByRefugio(refugioId:number):Promise<Mascota[]>{
+    return this.mascotaRepository.find({
+      where:{refugio:{usuario:{id:refugioId}}},
+      relations:['refugio']
+    })
+  }
 }
