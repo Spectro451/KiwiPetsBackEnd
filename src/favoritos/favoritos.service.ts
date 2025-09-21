@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Favoritos } from './favoritos.entity';
 import { Repository } from 'typeorm';
@@ -12,7 +12,9 @@ export class FavoritosService {
   
     //Get
     async findAll(): Promise<Favoritos[]> {
-      return this.favoritosRepository.find();
+      return this.favoritosRepository.find({
+        relations:['mascota', 'adoptante', 'mascota.refugio'],
+      });
     }
   
     //GetId
@@ -24,6 +26,15 @@ export class FavoritosService {
   
     //Post
     async create(data: Partial<Favoritos>): Promise<Favoritos> {
+      const existe = await this.favoritosRepository.findOne({
+        where: {
+          adoptante:{rut:data.adoptante?.rut},
+          mascota:{id_mascota:data.mascota?.id_mascota}
+        }
+      });
+      if (existe){
+        throw new BadRequestException('Ya lo tienes como favorito');
+      }
       const nuevoFavorito = this.favoritosRepository.create(data);
       return this.favoritosRepository.save(nuevoFavorito);
     }
@@ -39,5 +50,13 @@ export class FavoritosService {
     async remove(id:number): Promise<void>{
       const favoritos = await this.findOne(id);
       await this.favoritosRepository.remove(favoritos);
+    }
+
+    //filtro por adoptante
+    async findByAdoptante(adoptanteRut:string):Promise<Favoritos[]>{
+      return this.favoritosRepository.find({
+        where:{adoptante:{rut:adoptanteRut}},
+        relations:['mascota','mascota.refugio'],
+      })
     }
 }

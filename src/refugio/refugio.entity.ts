@@ -27,9 +27,9 @@ export class Refugio {
   @JoinColumn()
   usuario: Usuario;
 
-  @OneToMany(()=>Mascota,mascota=>mascota.refugio)
-  mascotas?:Mascota[];
+  @OneToMany(() => Mascota, mascota => mascota.refugio, { cascade: true, onDelete: 'CASCADE' })
+  mascotas?: Mascota[];
 
-  @OneToMany(() => Adopcion, adopcion => adopcion.refugio)
+  @OneToMany(() => Adopcion, adopcion => adopcion.refugio, { cascade: true, onDelete: 'CASCADE' })
   adopciones?: Adopcion[];
 }

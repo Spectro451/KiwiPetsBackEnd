@@ -25,13 +25,13 @@ export class Usuario {
   @Column({ type: 'bool', default: false })
   admin: boolean;
 
-  @OneToMany(() => Notificaciones, notificacion => notificacion.usuario)
+  @OneToMany(() => Notificaciones, notificacion => notificacion.usuario, { cascade: true, onDelete: 'CASCADE' })
   notificaciones?: Notificaciones[];
 
-  @OneToOne(() => Adoptante, adoptante => adoptante.usuario, { cascade: true, nullable: true })
+  @OneToOne(() => Adoptante, adoptante => adoptante.usuario, { cascade: true, onDelete: 'CASCADE', nullable: true })
   adoptante?: Adoptante;
 
-  @OneToOne(() => Refugio, refugio => refugio.usuario, { cascade: true, nullable: true })
+  @OneToOne(() => Refugio, refugio => refugio.usuario, { cascade: true, onDelete: 'CASCADE', nullable: true })
   refugio?: Refugio;
 
 }

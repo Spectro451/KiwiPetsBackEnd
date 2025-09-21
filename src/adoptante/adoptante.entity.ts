@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn } from "typeorm";
+import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn, OneToOne } from "typeorm";
 import { Adopcion } from "../adopcion/adopcion.entity";
 import { Favoritos } from "../favoritos/favoritos.entity";
 import { Usuario } from "../usuario/usuario.entity";
@@ -61,13 +61,13 @@ export class Adoptante{
   @Column({ type: "text" })
   motivo_adopcion: string;
 
-  @OneToMany(() => Adopcion, adopcion => adopcion.adoptante)
+  @OneToMany(() => Adopcion, adopcion => adopcion.adoptante, { cascade: true, onDelete: 'CASCADE' })
   adopciones?: Adopcion[];
 
-  @OneToMany(() => Favoritos, favorito => favorito.adoptante)
+  @OneToMany(() => Favoritos, favorito => favorito.adoptante, { cascade: true, onDelete: 'CASCADE' })
   favoritos?: Favoritos[];
 
-  @OneToMany(() => Usuario, usuario => usuario.adoptante, { onDelete: 'CASCADE' })
+  @OneToOne(() => Usuario, usuario => usuario.adoptante)
   @JoinColumn()
   usuario: Usuario;
 
