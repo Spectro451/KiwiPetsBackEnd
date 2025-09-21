@@ -11,7 +11,8 @@ import { HistorialModule } from './historial/historial.module';
 import { FavoritosModule } from './favoritos/favoritos.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccesoTotal } from './auth/pruebas.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
@@ -36,7 +37,13 @@ import { AccesoTotal } from './auth/pruebas.guard';
     NotificacionesModule,
   ],
   controllers: [AppController],
-  providers: [AppService, AccesoTotal],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass:RolesGuard,
+    }
+  ],
 })
 export class AppModule {}
 
