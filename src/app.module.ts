@@ -11,26 +11,34 @@ import { HistorialModule } from './historial/historial.module';
 import { FavoritosModule } from './favoritos/favoritos.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from './auth/roles.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './auth/jwt.strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host:'localhost',
-      port:5432,
-      username:'postgres',
-      password:'0403',
-      database:'kiwiPets',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize:true,
+    ConfigModule.forRoot({isGlobal:true}),
+    TypeOrmModule.forRootAsync({
+      imports:[ConfigModule],
+      inject:[ConfigService],
+      useFactory:(config:ConfigService)=>({
+        type: 'postgres',
+        host: config.get<string>('POSTGRES_HOST'),
+        port: Number(config.get<number>('POSTGRES_PORT')),
+        username: config.get<string>('POSTGRES_USER'),
+        password: config.get<string>('POSTGRES_PASSWORD'),
+        database: config.get<string>('POSTGRES_DB'),
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: false,
+      }),
     }),
-    JwtModule.register({
-      secret:'kiwipotos',
-      signOptions:{expiresIn:3600},
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: Number(config.get<number>('JWT_EXPIRATION')) },
+      }),
     }),
     MascotaModule,
     UsuarioModule,
