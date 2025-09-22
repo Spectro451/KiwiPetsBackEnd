@@ -40,4 +40,12 @@ export class NotificacionesService {
     const notificaciones = await this.findOne(id);
     await this.notificacionesRepository.remove(notificaciones);
   }
+
+  //busca por usuario
+  async findByUsuario(usuarioId:number):Promise<Notificaciones[]>{
+    return this.notificacionesRepository.find({
+      where: {usuario:{id:usuarioId}},
+      order:{fecha:'DESC'}
+    })
+  }
 }

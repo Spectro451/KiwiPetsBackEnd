@@ -7,12 +7,14 @@ import { Mascota } from '../mascota/mascota.entity';
 import { Adoptante } from '../adoptante/adoptante.entity';
 import { RefugioModule } from 'src/refugio/refugio.module';
 import { AdoptanteModule } from 'src/adoptante/adoptante.module';
+import { NotificacionesModule } from 'src/notificaciones/notificaciones.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Adopcion, Mascota, Adoptante]),
     RefugioModule,
     AdoptanteModule,
+    NotificacionesModule,
   ],
   providers: [AdopcionService],
   controllers: [AdopcionController],

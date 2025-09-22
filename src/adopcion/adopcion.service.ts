@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Adopcion, EstadoAdopcion } from './adopcion.entity';
 import { Mascota, Estado } from '../mascota/mascota.entity';
+import { NotificacionesService } from 'src/notificaciones/notificaciones.service';
 
 @Injectable()
 export class AdopcionService {
@@ -11,6 +12,7 @@ export class AdopcionService {
     private readonly adopcionRepository: Repository<Adopcion>,
     @InjectRepository(Mascota)
     private readonly mascotaRepository: Repository<Mascota>,
+    private readonly notificacionesService:NotificacionesService,
   ) {}
 
   // Getall
@@ -33,7 +35,10 @@ export class AdopcionService {
   // Crear nueva adopción
   async create(data: Partial<Adopcion>): Promise<Adopcion> {
     if (!data.mascota || !data.mascota.id_mascota) {
-    throw new BadRequestException('Debe proporcionar una mascota válida para la adopción');
+      throw new BadRequestException('Debe proporcionar una mascota válida para la adopción');
+    }
+    if (!data.adoptante) {
+      throw new BadRequestException('Debe proporcionar un adoptante válido para la adopción');
     }
     // Verificar que la mascota existe
     const mascota = await this.mascotaRepository.findOneBy({ id_mascota: data.mascota.id_mascota });
@@ -54,11 +59,20 @@ export class AdopcionService {
     const nuevaAdopcion = this.adopcionRepository.create({
       ...data,
       mascota,
-      refugio:mascota.refugio,
-      fecha_solicitud:new Date(),
-      estado: EstadoAdopcion.EN_PROCESO
+      refugio: mascota.refugio,
+      fecha_solicitud: new Date(),
+      estado: EstadoAdopcion.EN_PROCESO,
     });
-    return this.adopcionRepository.save(nuevaAdopcion);
+    const savedAdopcion = await this.adopcionRepository.save(nuevaAdopcion);
+
+    // Crear notificación para el refugio
+    await this.notificacionesService.create({
+      usuario: mascota.refugio.usuario,
+      mensaje: `${data.adoptante.nombre} quiere adoptar a ${mascota.nombre}`,
+      fecha: new Date(),
+    });
+
+    return savedAdopcion;
   }
 
   //Update
@@ -98,7 +112,24 @@ export class AdopcionService {
 
     // Actualizar adopción con los nuevos datos
     Object.assign(adopcion, data);
-    return this.adopcionRepository.save(adopcion);
+    const updatedAdopcion = await this.adopcionRepository.save(adopcion);
+
+    // Crear notificación para el adoptante
+    if (data.estado === EstadoAdopcion.ACEPTADA) {
+      await this.notificacionesService.create({
+        usuario: adopcion.adoptante.usuario, // el adoptante que solicitó
+        mensaje: `¡Felicidades! La adopción de ${adopcion.mascota.nombre} fue aceptada.`,
+        fecha: new Date(),
+      });
+    } else if (data.estado === EstadoAdopcion.RECHAZADA) {
+      await this.notificacionesService.create({
+        usuario: adopcion.adoptante.usuario,
+        mensaje: `Lo sentimos. La adopción de ${adopcion.mascota.nombre} fue rechazada.`,
+        fecha: new Date(),
+      });
+    }
+
+    return updatedAdopcion;
   }
 
 

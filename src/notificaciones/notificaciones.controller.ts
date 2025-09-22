@@ -1,45 +1,57 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { NotificacionesService } from './notificaciones.service';
 import { Notificaciones } from './notificaciones.entity';
+import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 
 @Controller('notificaciones')
+@UseGuards(JwtAuthguard)
 export class NotificacionesController {
   constructor(private readonly notificacionesService: NotificacionesService){}
 
   @Get()
-  async findAll(): Promise<Notificaciones[]> {
-    return await this.notificacionesService.findAll();
+  async findAll(@Request() request): Promise<Notificaciones[]> {
+    if(request.user.admin){
+      return this.notificacionesService.findAll();
+    }
+    return this.notificacionesService.findByUsuario(request.user.id);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id:number): Promise<Notificaciones>{
-    const notificaciones = await this.notificacionesService.findOne(id);
-    if(!notificaciones){
-      throw new NotFoundException(`Notificaciones con ID ${id} no encontrada`);
+  async findOne(@Param('id') id:number, @Request() request): Promise<Notificaciones> {
+    const notificacion = await this.notificacionesService.findOne(id);
+    if(!notificacion){
+      throw new NotFoundException(`Notificación con ID ${id} no encontrada`);
     }
-    return notificaciones;
+
+    if(!request.user.admin && notificacion.usuario.id !== request.user.id){
+      throw new ForbiddenException('No tienes permiso para ver esta notificación');
+    }
+
+    return notificacion;
   }
 
   @Post()
-  async create(@Body() notificacionesData: Partial<Notificaciones>): Promise<Notificaciones> {
-    return await this.notificacionesService.create(notificacionesData);
+  async create(@Body() data: Partial<Notificaciones>, @Request() request): Promise<Notificaciones> {
+    if(!request.user.admin){
+      throw new ForbiddenException('Solo admin puede crear notificaciones');
+    }
+    return this.notificacionesService.create(data);
   }
 
   @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() notificacionesData: Partial<Notificaciones>
-  ): Promise<Notificaciones> {
-    const updated = await this.notificacionesService.update(id, notificacionesData);
-    if (!updated) {
-      throw new NotFoundException(`No se pudo actualizar la notificaciones con ID ${id}`);
+  async update(@Param('id') id: number, @Body() data: Partial<Notificaciones>, @Request() request): Promise<Notificaciones> {
+    if(!request.user.admin){
+      throw new ForbiddenException('Solo admin puede editar notificaciones');
     }
-    return updated;
+    return this.notificacionesService.update(id, data);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number): Promise<{ message: string }> {
+  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+    if(!request.user.admin){
+      throw new ForbiddenException('Solo admin puede eliminar notificaciones');
+    }
     await this.notificacionesService.remove(id);
-    return { message: `Notificaciones con ID ${id} eliminada correctamente` };
+    return { message: `Notificación con ID ${id} eliminada correctamente` };
   }
 }
