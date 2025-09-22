@@ -67,7 +67,7 @@ export class Adoptante{
   @OneToMany(() => Favoritos, favorito => favorito.adoptante, { cascade: true, onDelete: 'CASCADE' })
   favoritos?: Favoritos[];
 
-  @OneToOne(() => Usuario, usuario => usuario.adoptante)
+  @OneToOne(() => Usuario, usuario => usuario.adoptante, { onDelete: 'CASCADE' })
   @JoinColumn()
   usuario: Usuario;
 
