@@ -1,6 +1,7 @@
 // src/seed.ts
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+
 import { Usuario, TipoUsuario } from './usuario/usuario.entity';
 import { Refugio } from './refugio/refugio.entity';
 import { Adoptante, EspeciePreferida, Sexo, Edad, Vivienda } from './adoptante/adoptante.entity';
@@ -11,17 +12,29 @@ import { Favoritos } from './favoritos/favoritos.entity';
 import { Notificaciones } from './notificaciones/notificaciones.entity';
 import { Adopcion, EstadoAdopcion } from './adopcion/adopcion.entity';
 
-const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: 'localhost',
-  port: 5432,
-  username: 'postgres',
-  password: '0403',
-  database: 'kiwiPets',
-  synchronize: true,
-  logging: false,
-  entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
-});
+const connectionOptions = process.env.DATABASE_URL
+  ? {
+      type: 'postgres' as const,
+      url: process.env.DATABASE_URL,
+      synchronize: true,
+      logging: false,
+      entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
+      ssl: { rejectUnauthorized: false }, // <-- esto habilita SSL
+    }
+  : {
+      type: 'postgres' as const,
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      synchronize: true,
+      logging: false,
+      entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
+      ssl: { rejectUnauthorized: false }, // <-- también aquí si usas host/pass
+    };
+
+const AppDataSource = new DataSource(connectionOptions);
 
 async function runSeed() {
   await AppDataSource.initialize();
