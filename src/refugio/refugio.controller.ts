@@ -12,11 +12,9 @@ export class RefugioController {
   constructor(private readonly refugioService: RefugioService){}
 
   @Get()
-  @UseGuards(JwtAuthguard)
-  async findAll(@Request() request): Promise<Refugio[]> {
-    if(!request.user.admin){
-      throw new ForbiddenException('No tienes permiso');
-    }
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Adoptante', 'Refugio')
+  async findAll(): Promise<Refugio[]> {
     return await this.refugioService.findAll();
   }
 

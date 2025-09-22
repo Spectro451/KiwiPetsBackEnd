@@ -32,6 +32,9 @@ export class Mascota{
   @PrimaryGeneratedColumn()
   id_mascota:number;
 
+  @Column({ type: 'varchar', length: 50, unique: true, nullable: true })
+  chip?: string | null;
+
   @Column({type:"varchar",length:255})
   nombre:string;
 

@@ -137,6 +137,7 @@ async function runSeed() {
       requisito_adopcion: "Hogar con jardín y personas activas",
       estado_adopcion: EstadoMascota.DISPONIBLE,
       refugioIndex: 0,
+      chip: null,
       vacunas: [
         { nombre: "Rabia", fecha_aplicacion: new Date("2024-12-01"), proxima_dosis: new Date("2025-12-01"), observaciones: "Aplicada correctamente" },
         { nombre: "Moquillo", fecha_aplicacion: new Date("2024-12-15"), proxima_dosis: new Date("2025-12-15"), observaciones: "Sin reacciones adversas" },
@@ -166,6 +167,7 @@ async function runSeed() {
       requisito_adopcion: "Hogar sin perros grandes",
       estado_adopcion: EstadoMascota.DISPONIBLE,
       refugioIndex: 1,
+      chip: "CHIP12345",
       vacunas: [
         { nombre: "Rabia", fecha_aplicacion: new Date("2024-11-01"), proxima_dosis: new Date("2025-11-01"), observaciones: "Sin problemas" },
         { nombre: "Leucemia felina", fecha_aplicacion: new Date("2025-01-05"), proxima_dosis: new Date("2026-01-05"), observaciones: "Vacuna anual" },
@@ -193,6 +195,7 @@ async function runSeed() {
       requisito_adopcion: "Familia con patio",
       estado_adopcion: EstadoMascota.DISPONIBLE,
       refugioIndex: 2,
+      chip: "CHIPpoto12345",
       vacunas: [
         { nombre: "Rabia", fecha_aplicacion: new Date("2025-01-12"), proxima_dosis: new Date("2026-01-12"), observaciones: "Aplicada correctamente" },
       ],
@@ -219,6 +222,7 @@ async function runSeed() {
       requisito_adopcion: "Hogar con niños",
       estado_adopcion: EstadoMascota.DISPONIBLE,
       refugioIndex: 3,
+      chip: "peo",
       vacunas: [
         { nombre: "Rabia", fecha_aplicacion: new Date("2024-10-01"), proxima_dosis: new Date("2025-10-01"), observaciones: "Aplicada correctamente" },
       ],
@@ -274,6 +278,7 @@ async function runSeed() {
       foto: md.foto,
       requisito_adopcion: md.requisito_adopcion,
       estado_adopcion: md.estado_adopcion,
+      chip: md.chip ?? null,
       refugio: refugios[md.refugioIndex],
     }));
     mascotas.push(mascota);

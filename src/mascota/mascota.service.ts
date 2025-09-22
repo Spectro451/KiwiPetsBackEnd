@@ -3,6 +3,7 @@ import { Mascota, Estado } from './mascota.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Adopcion, EstadoAdopcion } from '../adopcion/adopcion.entity';
+import { Refugio } from 'src/refugio/refugio.entity';
 
 @Injectable()
 export class MascotaService {
@@ -76,5 +77,11 @@ export class MascotaService {
       where:{refugio:{usuario:{id:refugioId}}},
       relations:['refugio']
     })
+  }
+
+  //transferir
+  async transferir(mascota: Mascota, refugioDestino: Refugio): Promise<Mascota> {
+  mascota.refugio = refugioDestino;
+  return this.mascotaRepository.save(mascota);
   }
 }

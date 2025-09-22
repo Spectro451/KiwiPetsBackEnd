@@ -93,4 +93,31 @@ export class MascotaController {
     await this.mascotaService.remove(id);
     return { message: `Mascota con ID ${id} eliminada correctamente` };
   }
+
+  @Post('transferir')
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Refugio')
+  async transferirMascotas(
+    @Body() body: { mascotasIds: number[], refugioDestinoId: number },
+    @Request() request
+  ): Promise<Mascota[]> {
+
+    const refugio = await this.refugioService.findByUsuarioId(request.user.id);
+    if (!refugio) {
+      throw new ForbiddenException('No se encontro el refugio');
+    }
+
+    const refugioDestino = await this.refugioService.findOne(body.refugioDestinoId);
+    const mascotasActualizadas: Mascota[] = [];
+
+    for (const id of body.mascotasIds) {
+      const mascota = await this.mascotaService.findOne(id);
+      if (mascota.refugio.id !== refugio.id) {
+        throw new ForbiddenException(`Solo puedes transferir tus propias mascotas`);
+      }
+      const mascotaTransferida = await this.mascotaService.transferir(mascota, refugioDestino);
+      mascotasActualizadas.push(mascotaTransferida);
+    }
+    return mascotasActualizadas;
+  }
 }
