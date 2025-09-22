@@ -29,7 +29,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         password: config.get<string>('POSTGRES_PASSWORD'),
         database: config.get<string>('POSTGRES_DB'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: false,
+        synchronize: true,
       }),
     }),
     JwtModule.registerAsync({
