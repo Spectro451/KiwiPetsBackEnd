@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { Usuario } from './usuario.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -18,7 +18,7 @@ export class UsuarioController {
 
   @Get(':id')
   @UseGuards(JwtAuthguard)
-  async findOne(@Param('id') id: number, @Request() request): Promise<Usuario> {
+  async findOne(@Param('id', ParseIntPipe) id: number, @Request() request): Promise<Usuario> {
     //si no sos admin ni el dueño del id, no puedes acceder
     if (!request.user.admin && request.user.id !== id) {
       throw new ForbiddenException('No tienes permiso para ver este usuario');
@@ -39,7 +39,7 @@ export class UsuarioController {
   @UseGuards(JwtAuthguard)
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Body() usuarioData: Partial<Usuario>,
     @Request() request
   ): Promise<Usuario> {
@@ -61,7 +61,7 @@ export class UsuarioController {
 
   @UseGuards(JwtAuthguard)
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id', ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     //bloqueo para no editar otros
     if (!request.user.admin && request.user.id !== id) {
       throw new ForbiddenException('No tienes permiso para borrar este usuario');

@@ -13,6 +13,7 @@ import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/roles.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -25,6 +26,10 @@ import { RolesGuard } from './auth/roles.guard';
       database:'kiwiPets',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize:true,
+    }),
+    JwtModule.register({
+      secret:'kiwipotos',
+      signOptions:{expiresIn:3600},
     }),
     MascotaModule,
     UsuarioModule,

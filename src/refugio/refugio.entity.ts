@@ -17,9 +17,6 @@ export class Refugio {
   @Column({ type: "varchar", length: 255 })
   telefono: string;
 
-  @Column({ type: "varchar", length: 255 })
-  email: string;
-
   @Column({ type: "boolean", default: false })
   validado: boolean;
 

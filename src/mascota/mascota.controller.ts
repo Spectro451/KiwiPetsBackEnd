@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { MascotaService } from './mascota.service';
 import { Mascota } from './mascota.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -29,7 +29,7 @@ export class MascotaController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante', 'Refugio')
   @Get(':id')
-  async findOne(@Param('id') id: number, @Request() request): Promise<Mascota> {
+  async findOne(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<Mascota> {
     const mascota = await this.mascotaService.findOne(id);
     if (!mascota) throw new NotFoundException(`Mascota con ID ${id} no encontrada`);
 
@@ -60,7 +60,7 @@ export class MascotaController {
   @Roles('Refugio')
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Body() mascotaData: Partial<Mascota>,
     @Request() request,
   ): Promise<Mascota> {
@@ -80,7 +80,7 @@ export class MascotaController {
   @Delete(':id')
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     const mascota = await this.mascotaService.findOne(id);
     if (!mascota) throw new NotFoundException(`Mascota con ID ${id} no encontrada`);
 

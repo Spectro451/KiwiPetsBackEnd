@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { RefugioService } from './refugio.service';
 import { Refugio } from './refugio.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -23,7 +23,7 @@ export class RefugioController {
   @UseGuards(JwtAuthguard,RolesGuard)
   @Roles('Refugio')//solo refugio para que un adoptante no haga coso
   @Get(':id')
-  async findOne(@Param('id') id:number,@Request() request): Promise<Refugio>{
+  async findOne(@Param('id',ParseIntPipe) id:number,@Request() request): Promise<Refugio>{
     const refugio = await this.refugioService.findOne(id);
     if(!refugio){
       throw new NotFoundException(`Refugio con ID ${id} no encontrada`);
@@ -48,7 +48,7 @@ export class RefugioController {
   @Roles('Refugio')
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Body() refugioData: Partial<Refugio>,
     @Request() request,
   ): Promise<Refugio> {
@@ -68,7 +68,7 @@ export class RefugioController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     const refugio = await this.refugioService.findOne(id);
     if(!request.user.admin && request.user.id !== refugio.usuario.id){
       throw new ForbiddenException('No tienes permiso para eliminar este refugio');

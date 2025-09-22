@@ -12,7 +12,7 @@ import { Adoptante } from 'src/adoptante/adoptante.entity';
   imports: [
     TypeOrmModule.forFeature([Usuario, Refugio, Adoptante]),
     JwtModule.register({
-      secret:'kiwiPotos',
+      secret:'kiwipotos',
       signOptions:{expiresIn:3600}
     })
   ],

@@ -117,7 +117,7 @@ export class AdopcionService {
     // Crear notificación para el adoptante
     if (data.estado === EstadoAdopcion.ACEPTADA) {
       await this.notificacionesService.create({
-        usuario: adopcion.adoptante.usuario, // el adoptante que solicitó
+        usuario: adopcion.adoptante.usuario,
         mensaje: `¡Felicidades! La adopción de ${adopcion.mascota.nombre} fue aceptada.`,
         fecha: new Date(),
       });

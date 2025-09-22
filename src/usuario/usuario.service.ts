@@ -5,7 +5,7 @@ import { TipoUsuario, Usuario } from './usuario.entity';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Refugio } from 'src/refugio/refugio.entity';
-import { Adoptante } from 'src/adoptante/adoptante.entity';
+import { Adoptante, Edad, EspeciePreferida, Sexo, Vivienda } from 'src/adoptante/adoptante.entity';
 
 @Injectable()
 export class UsuarioService {
@@ -39,14 +39,37 @@ export class UsuarioService {
     }
     const nuevoUsuario = this.usuarioRepository.create(data);
     await this.usuarioRepository.save(nuevoUsuario);
-
+    //ojo cuidado que tienes que dejar por defecto al crear los "vacios"
     if(nuevoUsuario.tipo===TipoUsuario.ADOPTANTE){
-      nuevoUsuario.adoptante = this.adoptanteRepository.create({usuario:nuevoUsuario});
+      const adoptante = this.adoptanteRepository.create({
+        usuario:nuevoUsuario,
+        rut:Date.now().toString(),
+        nombre:"no tiene nombre",
+        edad:0,
+        telefono:"+56911111111",
+        direccion:"no tengo direccion",
+        cantidad_mascotas:0,
+        especie_preferida:EspeciePreferida.CUALQUIERA,
+        tipo_vivienda:Vivienda.CASA_PATIO,
+        sexo:Sexo.CUALQUIERA,
+        edad_buscada:Edad.ADULTO,
+        motivo_adopcion:'I like trains',
+      });
+      await this.adoptanteRepository.save(adoptante);
+      nuevoUsuario.adoptante = adoptante;
     } else if(nuevoUsuario.tipo===TipoUsuario.REFUGIO){
-      nuevoUsuario.refugio=this.refugioRepository.create({usuario:nuevoUsuario});
+      const refugio = this.refugioRepository.create({
+        usuario:nuevoUsuario,
+        nombre:"No tiene nombre",
+        direccion:"gpt-5",
+        telefono:"+56912345678",
+        validado:false,
+      });
+      await this.refugioRepository.save(refugio);
+      nuevoUsuario.refugio = refugio;
     }
 
-    return this.usuarioRepository.save(nuevoUsuario);
+    return nuevoUsuario;
   }
 
   //Put

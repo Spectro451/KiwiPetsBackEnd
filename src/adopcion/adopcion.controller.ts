@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { AdopcionService } from './adopcion.service';
 import { RefugioService } from 'src/refugio/refugio.service';
 import { Adopcion } from './adopcion.entity';
@@ -41,7 +41,7 @@ export class AdopcionController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio','Adoptante')
   @Get(':id')
-  async findOne(@Param('id') id: number,@Request() request): Promise<Adopcion> {
+  async findOne(@Param('id',ParseIntPipe) id: number,@Request() request): Promise<Adopcion> {
     const adopcion = await this.adopcionService.findOne(id);
     if(request.user.admin){
       return adopcion;
@@ -89,7 +89,7 @@ export class AdopcionController {
   @Roles('Refugio')
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Body() adopcionData: Partial<Adopcion>,
     @Request() request
   ): Promise<Adopcion> {
@@ -115,7 +115,7 @@ export class AdopcionController {
   @UseGuards(JwtAuthguard,RolesGuard)
   @Roles('Adoptante')
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     const adopcion = await this.adopcionService.findOne(id);
     if(!adopcion){
       throw new NotFoundException('Adopcion no encontrada')

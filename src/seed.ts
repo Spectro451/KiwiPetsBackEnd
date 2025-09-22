@@ -74,7 +74,6 @@ async function runSeed() {
       nombre: refugiosData[i].nombre,
       direccion: refugiosData[i].direccion,
       telefono: refugiosData[i].telefono,
-      email: refugiosData[i].email,
       validado: refugiosData[i].validado,
       usuario: usuarioRef,
     }));

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { NotificacionesService } from './notificaciones.service';
 import { Notificaciones } from './notificaciones.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -17,7 +17,7 @@ export class NotificacionesController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id:number, @Request() request): Promise<Notificaciones> {
+  async findOne(@Param('id',ParseIntPipe) id:number, @Request() request): Promise<Notificaciones> {
     const notificacion = await this.notificacionesService.findOne(id);
     if(!notificacion){
       throw new NotFoundException(`Notificación con ID ${id} no encontrada`);
@@ -39,7 +39,7 @@ export class NotificacionesController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: number, @Body() data: Partial<Notificaciones>, @Request() request): Promise<Notificaciones> {
+  async update(@Param('id',ParseIntPipe) id: number, @Body() data: Partial<Notificaciones>, @Request() request): Promise<Notificaciones> {
     if(!request.user.admin){
       throw new ForbiddenException('Solo admin puede editar notificaciones');
     }
@@ -47,7 +47,7 @@ export class NotificacionesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     if(!request.user.admin){
       throw new ForbiddenException('Solo admin puede eliminar notificaciones');
     }

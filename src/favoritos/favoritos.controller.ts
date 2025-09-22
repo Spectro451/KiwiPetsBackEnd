@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { FavoritosService } from './favoritos.service';
 import { Favoritos } from './favoritos.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -33,7 +33,7 @@ export class FavoritosController {
   @UseGuards(JwtAuthguard,RolesGuard)
   @Roles('Adoptante')
   @Get(':id')
-  async findOne(@Param('id') id:number,@Request() request): Promise<Favoritos>{
+  async findOne(@Param('id',ParseIntPipe) id:number,@Request() request): Promise<Favoritos>{
     const favoritos = await this.favoritosService.findOne(id);
     if (request.user.admin) return favoritos;
     const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
@@ -65,7 +65,7 @@ export class FavoritosController {
   @UseGuards(JwtAuthguard)
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Request() request,
     @Body() favoritosData: Partial<Favoritos>
   ): Promise<Favoritos> {
@@ -82,7 +82,7 @@ export class FavoritosController {
   @UseGuards(JwtAuthguard,RolesGuard)
   @Roles('Adoptante')
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     const favorito = await this.favoritosService.findOne(id);
     if(!favorito){
       throw new NotFoundException(`Favorito con ID ${id} no encontrado`);

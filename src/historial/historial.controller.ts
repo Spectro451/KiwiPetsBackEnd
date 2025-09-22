@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { HistorialService } from './historial.service';
 import { Historial } from './historial.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -25,7 +25,7 @@ export class HistorialController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   @Get(':id')
-  async findOne(@Param('id') id:number, @Request() request): Promise<Historial>{
+  async findOne(@Param('id',ParseIntPipe) id:number, @Request() request): Promise<Historial>{
     const historial = await this.historialService.findOne(id);
     if(!request.user.admin && historial.mascota.refugio.usuario.id !== request.user.id){
       throw new ForbiddenException('No tienes permisos')
@@ -56,7 +56,7 @@ export class HistorialController {
   @Roles('Refugio')
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id',ParseIntPipe) id: number,
     @Body() historialData: Partial<Historial>,
     @Request() request
   ): Promise<Historial> {
@@ -72,7 +72,7 @@ export class HistorialController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() request): Promise<{ message: string }> {
+  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
     const historial = await this.historialService.findOne(id);
 
     if (!request.user.admin && historial.mascota.refugio.usuario.id !== request.user.id) {
@@ -86,7 +86,7 @@ export class HistorialController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   @Get('mascota/:id_mascota')
-  async findByMascota(@Param('id_mascota') id_mascota: number, @Request() request): Promise<Historial[]> {
+  async findByMascota(@Param('id_mascota',ParseIntPipe) id_mascota: number, @Request() request): Promise<Historial[]> {
     const mascota = await this.mascotaService.findOne(id_mascota);
 
     if (!request.user.admin && mascota.refugio.usuario.id !== request.user.id) {
