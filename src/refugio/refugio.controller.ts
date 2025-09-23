@@ -19,6 +19,17 @@ export class RefugioController {
   }
 
   @UseGuards(JwtAuthguard,RolesGuard)
+  @Roles('Refugio')
+  @Get('yo')
+  async getMyRefugio(@Request() request){
+    const refugio = await this.refugioService.findByUsuarioId(request.user.id);
+    if (!refugio) {
+      throw new NotFoundException('Refugio no encontrado para este usuario');
+    }
+    return refugio;
+  }
+
+  @UseGuards(JwtAuthguard,RolesGuard)
   @Roles('Refugio')//solo refugio para que un adoptante no haga coso
   @Get(':id')
   async findOne(@Param('id',ParseIntPipe) id:number,@Request() request): Promise<Refugio>{
@@ -83,14 +94,5 @@ export class RefugioController {
     return this.refugioService.findMascotasByUsuario(request.user.id);
   }
 
-  @UseGuards(JwtAuthguard,RolesGuard)
-  @Roles('Refugio')
-  @Get('yo')
-  async getMyRefugio(@Request() request){
-    const refugio = await this.refugioService.findByUsuarioId(request.user.id);
-    if (!refugio) {
-      throw new NotFoundException('Refugio no encontrado para este usuario');
-    }
-    return refugio;
-  }
+
 }
