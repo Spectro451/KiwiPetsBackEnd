@@ -82,4 +82,15 @@ export class RefugioController {
   async getMisMascotas(@Request() request): Promise<Mascota[]> {
     return this.refugioService.findMascotasByUsuario(request.user.id);
   }
+
+  @UseGuards(JwtAuthguard,RolesGuard)
+  @Roles('Refugio')
+  @Get('yo')
+  async getMyRefugio(@Request() request){
+    const refugio = await this.refugioService.findByUsuarioId(request.user.id);
+    if (!refugio) {
+      throw new NotFoundException('Refugio no encontrado para este usuario');
+    }
+    return refugio;
+  }
 }
