@@ -18,6 +18,17 @@ export class AdoptanteController {
     return await this.adoptanteService.findAll();
   }
 
+  @UseGuards(JwtAuthguard,RolesGuard)
+  @Roles('Adoptante')
+  @Get('yo')
+  async getMyRefugio(@Request() request){
+    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
+    if (!adoptante) {
+      throw new NotFoundException('Refugio no encontrado para este usuario');
+    }
+    return adoptante;
+  }
+
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante')
   @Get(':rut')
@@ -72,14 +83,5 @@ export class AdoptanteController {
     return { message: `Adoptante con RUT ${rut} eliminado correctamente` };
   }
 
-  @UseGuards(JwtAuthguard,RolesGuard)
-  @Roles('Adoptante')
-  @Get('yo')
-  async getMyRefugio(@Request() request){
-    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
-    if (!adoptante) {
-      throw new NotFoundException('Refugio no encontrado para este usuario');
-    }
-    return adoptante;
-  }
+
 }
