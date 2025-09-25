@@ -43,7 +43,7 @@ export class Adoptante{
   @Column({ type: "varchar", length: 255 })
   direccion: string;
 
-  @Column({ type: "varchar", length: 3 })
+  @Column({ type: "varchar", length: 3, nullable: true, default: 'No' })
   experiencia_mascotas: string;
 
   @Column({ type: "int", nullable: true })
