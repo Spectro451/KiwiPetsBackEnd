@@ -43,8 +43,11 @@ export class Adoptante{
   @Column({ type: "varchar", length: 255 })
   direccion: string;
 
-  @Column({type:"int"})
-  cantidad_mascotas:number;
+  @Column({ type: "varchar", length: 3 })
+  experiencia_mascotas: string;
+
+  @Column({ type: "int", nullable: true })
+  cantidad_mascotas?: number;
 
   @Column({type:'enum', enum:EspeciePreferida})
   especie_preferida: EspeciePreferida;
