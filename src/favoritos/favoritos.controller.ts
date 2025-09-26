@@ -50,14 +50,10 @@ export class FavoritosController {
   @Roles('Adoptante')
   @Post()
   async create(@Body() favoritosData: Partial<Favoritos>, @Request() request): Promise<Favoritos> {
-    if(request.user.admin){
-      return await this.favoritosService.create(favoritosData);
-    }
     const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
     if (!adoptante){
       throw new NotFoundException('Adoptante no encontrado');
     }
-    
     favoritosData.adoptante=adoptante;
     return await this.favoritosService.create(favoritosData);
   }
