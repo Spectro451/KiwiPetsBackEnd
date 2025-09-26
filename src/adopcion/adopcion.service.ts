@@ -166,6 +166,7 @@ export class AdopcionService {
         }
       }
     }
+    await this.adopcionRepository.delete(id);
   }
 
   //busca por refugio
