@@ -40,6 +40,18 @@ export class AdopcionService {
     if (!data.adoptante) {
       throw new BadRequestException('Debe proporcionar un adoptante válido para la adopción');
     }
+    const existing = await this.adopcionRepository.findOne({
+      where: {
+        adoptante: { rut: data.adoptante.rut },
+        mascota: { id_mascota: data.mascota.id_mascota },
+        estado: EstadoAdopcion.EN_PROCESO
+      }
+    });
+
+    if (existing) {
+      // si ya habia adopcion no hace nada xd
+      return existing;
+    }
     // Verificar que la mascota existe
     const mascota = await this.mascotaRepository.findOneBy({ id_mascota: data.mascota.id_mascota });
     if (!mascota) throw new NotFoundException(`Mascota con id ${data.mascota.id_mascota} no encontrada`);
