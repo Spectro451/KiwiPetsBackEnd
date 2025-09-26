@@ -75,13 +75,11 @@ export class AdopcionController {
   @Roles('Adoptante')
   @Post()
   async create(@Body() data: Partial<Adopcion>, @Request() request): Promise<Adopcion> {
-    if (!request.user.admin) {
-      const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
+    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
       if (!adoptante) {
         throw new NotFoundException('Adoptante no encontrado');
       }
       data.adoptante = adoptante;
-    }
     return await this.adopcionService.create(data);
   }
 
