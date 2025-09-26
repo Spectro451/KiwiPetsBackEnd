@@ -53,7 +53,10 @@ export class AdopcionService {
       return existing;
     }
     // Verificar que la mascota existe
-    const mascota = await this.mascotaRepository.findOneBy({ id_mascota: data.mascota.id_mascota });
+      const mascota = await this.mascotaRepository.findOne({
+        where: { id_mascota: data.mascota.id_mascota },
+        relations: ['refugio'],
+      });
     if (!mascota) throw new NotFoundException(`Mascota con id ${data.mascota.id_mascota} no encontrada`);
 
     // Verificar que la mascota no está adoptada
