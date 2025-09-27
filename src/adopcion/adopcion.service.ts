@@ -85,13 +85,14 @@ export class AdopcionService {
       usuario: mascota.refugio.usuario,
       mensaje: `${data.adoptante.nombre} quiere adoptar a ${mascota.nombre}`,
       fecha: new Date(),
+      adopcionId: savedAdopcion.id,
     });
 
     return savedAdopcion;
   }
 
   //Update
-  async update(id: number, data: Partial<Adopcion>): Promise<Adopcion> {
+  async update(id: number, data: Partial<Adopcion>, motivo?: string): Promise<Adopcion> {
     const adopcion = await this.findOne(id);
 
     // Si se cambia el estado de la adopción
@@ -119,9 +120,16 @@ export class AdopcionService {
       }
 
       if (data.estado === EstadoAdopcion.RECHAZADA) {
-        // La mascota vuelve a DISPONIBLE
-        mascota.estado_adopcion = Estado.DISPONIBLE;
-        await this.mascotaRepository.save(mascota);
+        // Buscar si hay otras adopciones en proceso para esta mascota
+        const otrasEnProceso = await this.adopcionRepository.find({
+          where: { mascota: { id_mascota: mascota.id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
+        });
+
+        if (otrasEnProceso.length === 0) {
+          // si no hay vuelve disponible
+          mascota.estado_adopcion = Estado.DISPONIBLE;
+          await this.mascotaRepository.save(mascota);
+        }
       }
     }
 
@@ -139,7 +147,7 @@ export class AdopcionService {
     } else if (data.estado === EstadoAdopcion.RECHAZADA) {
       await this.notificacionesService.create({
         usuario: adopcion.adoptante.usuario,
-        mensaje: `Lo sentimos. La adopción de ${adopcion.mascota.nombre} fue rechazada.`,
+        mensaje: `Lo sentimos. La adopción de ${adopcion.mascota.nombre} fue rechazada por: ${motivo ?? 'motivo no especificado'}`,
         fecha: new Date(),
       });
     }

@@ -72,11 +72,11 @@ export class MascotaService {
   }
 
   //filtra por refugio
-  async findByRefugio(refugioId:number):Promise<Mascota[]>{
+  async findByRefugio(refugioId: number): Promise<Mascota[]> {
     return this.mascotaRepository.find({
-      where:{refugio:{usuario:{id:refugioId}}},
-      relations:['refugio']
-    })
+      where: { refugio: { id: refugioId } },
+      relations: ['refugio'],
+    });
   }
 
   //transferir

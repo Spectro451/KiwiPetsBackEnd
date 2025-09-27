@@ -19,8 +19,12 @@ export class MascotaController {
   async findAll(@Request() request): Promise<Mascota[]> {
     if(request.user.admin || request.user.tipo=="Adoptante"){
       return await this.mascotaService.findAll();
-    } else if (request.user.tipo=="Refugio"){
-      return this.mascotaService.findByRefugio(request.user.id)
+    } else if (request.user.tipo === "Refugio") {
+        const refugio = await this.refugioService.findByUsuarioId(request.user.id);
+        if (!refugio) {
+        throw new ForbiddenException('Este usuario no tiene un refugio asociado');
+        }
+        return this.mascotaService.findByRefugio(refugio.id);
     } else {
       throw new ForbiddenException('No tienes permisos')
     }

@@ -17,4 +17,7 @@ export class Notificaciones {
 
   @Column({ type: 'timestamp' })
   fecha: Date;
+
+  @Column({ nullable: true })
+  adopcionId?: number;
 }

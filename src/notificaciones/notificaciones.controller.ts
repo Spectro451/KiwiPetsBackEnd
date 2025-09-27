@@ -47,11 +47,38 @@ export class NotificacionesController {
   }
 
   @Delete(':id')
-  async remove(@Param('id',ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
-    if(!request.user.admin){
-      throw new ForbiddenException('Solo admin puede eliminar notificaciones');
+  async remove(@Param('id', ParseIntPipe) id: number, @Request() request): Promise<{ message: string }> {
+    const notificacion = await this.notificacionesService.findOne(id);
+    if (!notificacion) {
+      throw new NotFoundException(`Notificación con ID ${id} no encontrada`);
     }
+
+    // Verificar que el usuario sea dueño de la notificación o admin
+    if (!request.user.admin && notificacion.usuario.id !== request.user.id) {
+      throw new ForbiddenException('No tienes permiso para eliminar esta notificación');
+    }
+
+    // Solo borrar leidas
+    if (!notificacion.leido) {
+      throw new ForbiddenException('No puedes eliminar una notificación no leída');
+    }
+
     await this.notificacionesService.remove(id);
     return { message: `Notificación con ID ${id} eliminada correctamente` };
   }
+
+  @Put(':id/leida')
+  async marcarComoLeida(@Param('id', ParseIntPipe) id: number, @Request() request): Promise<Notificaciones> {
+    const notificacion = await this.notificacionesService.findOne(id);
+    if (!notificacion) throw new NotFoundException(`Notificación con ID ${id} no encontrada`);
+
+    // Solo el dueño o admin puede marcar como leída
+    if (!request.user.admin && notificacion.usuario.id !== request.user.id) {
+      throw new ForbiddenException('No tienes permiso para modificar esta notificación');
+    }
+
+    notificacion.leido = true;
+    return await this.notificacionesService.update(id, notificacion);
+  }
+
 }
