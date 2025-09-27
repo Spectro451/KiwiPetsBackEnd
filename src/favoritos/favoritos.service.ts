@@ -45,8 +45,8 @@ export class FavoritosService {
         throw new BadRequestException('Ya lo tienes como favorito');
       }
       const nuevoFavorito = this.favoritosRepository.create({
-        adoptante: { rut: data.adoptante.rut },
-        mascota: { id_mascota: data.mascota.id_mascota }
+        adoptante: data.adoptante,
+        mascota: data.mascota 
       });
 
       return this.favoritosRepository.save(nuevoFavorito);
