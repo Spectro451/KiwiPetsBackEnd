@@ -2,12 +2,15 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Favoritos } from './favoritos.entity';
 import { Repository } from 'typeorm';
+import { Mascota } from 'src/mascota/mascota.entity';
 
 @Injectable()
 export class FavoritosService {
   constructor(
       @InjectRepository(Favoritos)
       private readonly favoritosRepository: Repository<Favoritos>,
+      @InjectRepository(Mascota)
+      private readonly mascotaRepository: Repository<Mascota>,
     ) {}
   
     //Get
@@ -29,12 +32,6 @@ export class FavoritosService {
   
     //Post
     async create(data: Partial<Favoritos>): Promise<Favoritos> {
-      if (!data.adoptante?.rut) {
-        throw new BadRequestException('Adoptante inválido');
-      }
-      if (!data.mascota?.id_mascota) {
-        throw new BadRequestException('Mascota inválida');
-      }
       const existe = await this.favoritosRepository.findOne({
         where: {
           adoptante:{rut:data.adoptante?.rut},
@@ -44,11 +41,15 @@ export class FavoritosService {
       if (existe){
         throw new BadRequestException('Ya lo tienes como favorito');
       }
+      const mascota = await this.mascotaRepository.findOne({
+        where: { id_mascota: data.mascota?.id_mascota },
+      });
+      if (!mascota) throw new NotFoundException('Mascota no encontrada');
+
       const nuevoFavorito = this.favoritosRepository.create({
         adoptante: data.adoptante,
-        mascota: data.mascota 
+        mascota,                  
       });
-
       return this.favoritosRepository.save(nuevoFavorito);
     }
   
