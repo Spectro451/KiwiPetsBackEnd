@@ -16,7 +16,7 @@ export class FavoritosService {
     //Get
     async findAll(): Promise<Favoritos[]> {
       return this.favoritosRepository.find({
-        relations:['mascota', 'adoptante', 'mascota.refugio'],
+        relations:['mascota', 'adoptante', 'adoptante.usuario', 'mascota.refugio'],
       });
     }
   
@@ -70,7 +70,7 @@ export class FavoritosService {
     async findByAdoptante(adoptanteRut:string):Promise<Favoritos[]>{
       return this.favoritosRepository.find({
         where:{adoptante:{rut:adoptanteRut}},
-        relations:['mascota','mascota.refugio', 'adoptante'],
+        relations:['mascota', 'adoptante', 'adoptante.usuario', 'mascota.refugio'],
       })
     }
 }
