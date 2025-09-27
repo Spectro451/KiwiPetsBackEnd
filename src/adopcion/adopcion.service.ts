@@ -26,7 +26,7 @@ export class AdopcionService {
   async findOne(id: number): Promise<Adopcion> {
     const adopcion = await this.adopcionRepository.findOne({
       where: { id },
-      relations: ['mascota', 'adoptante']
+      relations: ['mascota', 'adoptante','adoptante.usuario']
     });
     if (!adopcion) throw new NotFoundException(`Adopcion con id ${id} no encontrada`);
     return adopcion;

@@ -18,8 +18,11 @@ export class FavoritosService {
     }
   
     //GetId
-    async findOne(id:number): Promise<Favoritos> {
-      const favoritos = await this.favoritosRepository.findOne({where:{id}});
+    async findOne(id: number): Promise<Favoritos> {
+      const favoritos = await this.favoritosRepository.findOne({
+        where: { id },
+        relations: ['adoptante', 'mascota'], // <--- esto carga las relaciones
+      });
       if (!favoritos) throw new NotFoundException(`Favoritos con id ${id} no encontrada`);
       return favoritos;
     }

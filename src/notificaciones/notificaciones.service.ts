@@ -17,9 +17,12 @@ export class NotificacionesService {
 
   //GetId
   async findOne(id: number): Promise<Notificaciones> {
-    const notificaciones = await this.notificacionesRepository.findOne({ where: { id } });
-    if (!notificaciones) throw new NotFoundException(`Notificaciones con id ${id} no encontrada`);
-    return notificaciones;
+    const notificacion = await this.notificacionesRepository.findOne({
+      where: { id },
+      relations: ['usuario']
+    });
+    if (!notificacion) throw new NotFoundException(`Notificación con id ${id} no encontrada`);
+    return notificacion;
   }
 
   //Post
