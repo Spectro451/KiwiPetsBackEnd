@@ -70,7 +70,7 @@ export class FavoritosService {
     async findByAdoptante(adoptanteRut:string):Promise<Favoritos[]>{
       return this.favoritosRepository.find({
         where:{adoptante:{rut:adoptanteRut}},
-        relations:['mascota','mascota.refugio'],
+        relations:['mascota','mascota.refugio', 'adoptante'],
       })
     }
 }
