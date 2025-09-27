@@ -29,6 +29,12 @@ export class FavoritosService {
   
     //Post
     async create(data: Partial<Favoritos>): Promise<Favoritos> {
+      if (!data.adoptante?.rut) {
+        throw new BadRequestException('Adoptante inválido');
+      }
+      if (!data.mascota?.id_mascota) {
+        throw new BadRequestException('Mascota inválida');
+      }
       const existe = await this.favoritosRepository.findOne({
         where: {
           adoptante:{rut:data.adoptante?.rut},
@@ -38,7 +44,11 @@ export class FavoritosService {
       if (existe){
         throw new BadRequestException('Ya lo tienes como favorito');
       }
-      const nuevoFavorito = this.favoritosRepository.create(data);
+      const nuevoFavorito = this.favoritosRepository.create({
+        adoptante: { rut: data.adoptante.rut },
+        mascota: { id_mascota: data.mascota.id_mascota }
+      });
+
       return this.favoritosRepository.save(nuevoFavorito);
     }
   
