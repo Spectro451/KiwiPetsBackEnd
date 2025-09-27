@@ -30,6 +30,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: config.get<string>('POSTGRES_DB'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       }),
     }),
     JwtModule.registerAsync({

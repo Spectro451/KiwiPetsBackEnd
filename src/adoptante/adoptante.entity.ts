@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn, OneToOne } from "typeorm";
+import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Adopcion } from "../adopcion/adopcion.entity";
 import { Favoritos } from "../favoritos/favoritos.entity";
 import { Usuario } from "../usuario/usuario.entity";
@@ -28,7 +28,10 @@ export enum Edad {
 }
 @Entity()
 export class Adoptante{
-  @PrimaryColumn({type:"varchar", length:100})
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({type:"varchar", length:100, unique:true})
   rut: string;
   
   @Column({ type: "varchar", length: 255 })
