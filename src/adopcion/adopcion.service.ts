@@ -115,6 +115,13 @@ export class AdopcionService {
           if (otra.id !== adopcion.id) {
             otra.estado = EstadoAdopcion.RECHAZADA;
             await this.adopcionRepository.save(otra);
+
+            //enviar noti a los demas
+            await this.notificacionesService.create({
+              usuario: otra.adoptante.usuario,
+              mensaje: `Lo sentimos la mascota ${otra.mascota.nombre} fue adoptada por otro solicitante.`,
+              fecha: new Date(),
+            });
           }
         }
       }
