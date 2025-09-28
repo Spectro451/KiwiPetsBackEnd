@@ -88,15 +88,14 @@ export class AdopcionController {
   @Put(':id')
   async update(
     @Param('id',ParseIntPipe) id: number,
-    @Body() adopcionData: Partial<Adopcion>,
-    @Body('motivo') motivo: string,
+    @Body() body: { data: Partial<Adopcion>, motivo?: string },
     @Request() request
   ): Promise<Adopcion> {
     const adopcion = await this.adopcionService.findOne(id);
     if (!adopcion) throw new NotFoundException(`Adopcion con ID ${id} no encontrada`);
 
     if (request.user.admin) {
-      return await this.adopcionService.update(id, adopcionData, motivo);
+      return await this.adopcionService.update(id, body.data, body.motivo);
     }
 
     if (request.user.tipo === 'Refugio') {
@@ -105,7 +104,7 @@ export class AdopcionController {
       if (adopcion.refugio.id !== refugio.id) {
         throw new ForbiddenException('No puedes actualizar esta adopcion');
       }
-      return await this.adopcionService.update(id, adopcionData, motivo);
+      return await this.adopcionService.update(id, body.data, body.motivo);
     }
 
     throw new ForbiddenException('No tienes permiso');

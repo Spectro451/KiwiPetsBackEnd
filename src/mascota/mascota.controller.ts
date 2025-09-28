@@ -50,13 +50,16 @@ export class MascotaController {
   @Roles('Refugio')
   async create(@Body() mascotaData: Partial<Mascota>, @Request() request): Promise<Mascota> {
 
-    if (request.user.tipo === 'Refugio') {
-      const refugio = await this.refugioService.findByUsuarioId(request.user.id);
-      if (!refugio) {
-        throw new ForbiddenException('Este usuario no tiene un refugio asociado');
-      }
-      mascotaData.refugio = refugio;
+    const refugio = await this.refugioService.findByUsuarioId(request.user.id);
+    if (!refugio) {
+      throw new ForbiddenException('Este usuario no tiene un refugio asociado');
     }
+
+    if (!refugio.validado) {
+      throw new ForbiddenException('No puedes añadir mascotas si no estás validado, contacta con un administrador');
+    }
+
+    mascotaData.refugio = refugio;
     return await this.mascotaService.create(mascotaData);
   }
 

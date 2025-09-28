@@ -66,6 +66,11 @@ export class RefugioController {
       throw new NotFoundException(`No se pudo actualizar la refugio con ID ${id}`);
     }
 
+    //Solo un admin te puede validar
+    if (!request.user.admin && 'validado' in refugioData) {
+      delete refugioData.validado;
+    }
+
     if(!request.user.admin && request.user.id !== refugio.usuario.id){
       throw new ForbiddenException('No tienes permiso para editar este refugio');
     }
