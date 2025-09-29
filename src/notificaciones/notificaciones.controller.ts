@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
 import { NotificacionesService } from './notificaciones.service';
 import { Notificaciones } from './notificaciones.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -9,11 +9,18 @@ export class NotificacionesController {
   constructor(private readonly notificacionesService: NotificacionesService){}
 
   @Get()
-  async findAll(@Request() request): Promise<Notificaciones[]> {
-    if(request.user.admin){
-      return this.notificacionesService.findAll();
+  async findAll(
+    @Request() request,
+    @Query('offset') offsetStr?: string,
+    @Query('limit') limitStr?: string
+  ): Promise<Notificaciones[]> {
+    const offset = parseInt(offsetStr ?? '0');
+    const limit = parseInt(limitStr ?? '20');
+
+    if (request.user.admin) {
+      return this.notificacionesService.findAll(offset, limit);
     }
-    return this.notificacionesService.findByUsuario(request.user.id);
+    return this.notificacionesService.findByUsuario(request.user.id, offset, limit);
   }
 
   @Get(':id')

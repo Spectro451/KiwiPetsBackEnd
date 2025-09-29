@@ -11,8 +11,13 @@ export class NotificacionesService {
   ) {}
 
   //Get
-  async findAll(): Promise<Notificaciones[]> {
-    return this.notificacionesRepository.find();
+  async findAll(offset = 0, limit = 20): Promise<Notificaciones[]> {
+    return this.notificacionesRepository.find({
+      skip: offset, 
+      take: limit,
+      order: { fecha: 'DESC' },
+      relations: ['usuario'],
+    });
   }
 
   //GetId
@@ -45,10 +50,13 @@ export class NotificacionesService {
   }
 
   //busca por usuario
-  async findByUsuario(usuarioId:number):Promise<Notificaciones[]>{
+  async findByUsuario(usuarioId: number, offset = 0, limit = 20): Promise<Notificaciones[]> {
     return this.notificacionesRepository.find({
-      where: {usuario:{id:usuarioId}},
-      order:{fecha:'DESC'}
-    })
+      where: { usuario: { id: usuarioId } },
+      skip: offset,
+      take: limit,
+      order: { fecha: 'DESC' },
+      relations: ['usuario'],
+    });
   }
 }
