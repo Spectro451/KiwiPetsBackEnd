@@ -73,17 +73,27 @@ export class UsuarioService {
   }
 
   //Put
-  async update(id: number, data: Partial<Usuario>): Promise<Usuario> {
-    const usuario = await this.findOne(id);
+async update(id: number, data: Partial<Usuario>): Promise<Usuario> {
+  const usuario = await this.findOne(id);
 
-    //hasheo post modificacion
-    if (data.contraseña) {
-      data.contraseña = await bcrypt.hash(data.contraseña, 10);
+  // Verificar si el correo ya está en uso por otro usuario
+  if (data.correo) {
+    const existente = await this.usuarioRepository.findOne({ 
+      where: { correo: data.correo } 
+    });
+    if (existente && existente.id !== id) {
+      throw new Error('El correo ya está en uso por otro usuario');
     }
-
-    Object.assign(usuario, data);
-    return this.usuarioRepository.save(usuario);
   }
+
+  // Hasheo de contraseña si se cambia
+  if (data.contraseña) {
+    data.contraseña = await bcrypt.hash(data.contraseña, 10);
+  }
+
+  Object.assign(usuario, data);
+  return this.usuarioRepository.save(usuario);
+}
 
   //delete
   async remove(id: number): Promise<void> {
