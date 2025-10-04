@@ -129,7 +129,11 @@ export class AdopcionService {
       if (data.estado === EstadoAdopcion.RECHAZADA) {
         // Buscar si hay otras adopciones en proceso para esta mascota
         const otrasEnProceso = await this.adopcionRepository.find({
-          where: { mascota: { id_mascota: mascota.id_mascota }, estado: EstadoAdopcion.EN_PROCESO }
+          where: {
+             mascota: { id_mascota: mascota.id_mascota }, 
+             estado: EstadoAdopcion.EN_PROCESO,
+             id: Not(adopcion.id)
+            }
         });
 
         if (otrasEnProceso.length === 0) {
