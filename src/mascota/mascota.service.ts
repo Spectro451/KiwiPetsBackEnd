@@ -16,7 +16,7 @@ export class MascotaService {
 
   async findAll(): Promise<Mascota[]> {
     return this.mascotaRepository.find({
-      relations: ["vacunas", "historialClinico","refugio"],
+      relations: ["vacunas", "historialClinico","refugio","refugio.usuario"],
     });
   }
 

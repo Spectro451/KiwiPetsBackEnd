@@ -4,6 +4,7 @@ import { Not, Repository } from 'typeorm';
 import { Adopcion, EstadoAdopcion } from './adopcion.entity';
 import { Mascota, Estado } from '../mascota/mascota.entity';
 import { NotificacionesService } from 'src/notificaciones/notificaciones.service';
+import { Usuario } from 'src/usuario/usuario.entity';
 
 @Injectable()
 export class AdopcionService {
@@ -13,6 +14,8 @@ export class AdopcionService {
     @InjectRepository(Mascota)
     private readonly mascotaRepository: Repository<Mascota>,
     private readonly notificacionesService:NotificacionesService,
+    @InjectRepository(Usuario)
+    private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
   // Getall
@@ -79,10 +82,17 @@ export class AdopcionService {
       estado: EstadoAdopcion.EN_PROCESO,
     });
     const savedAdopcion = await this.adopcionRepository.save(nuevaAdopcion);
+    const usuarioRefugio = await this.usuarioRepository.findOne({
+      where: { id: mascota.refugio.usuario.id }, 
+    });
+    if (!usuarioRefugio) {
+      throw new NotFoundException('Usuario del refugio no encontrado');
+    }
+    
 
     // Crear notificación para el refugio
     await this.notificacionesService.create({
-      usuario: mascota.refugio.usuario,
+      usuario: usuarioRefugio,
       mensaje: `${data.adoptante.nombre} quiere adoptar a ${mascota.nombre}`,
       fecha: new Date(),
       adopcionId: savedAdopcion.id,

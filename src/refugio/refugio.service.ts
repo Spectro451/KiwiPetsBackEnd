@@ -46,7 +46,7 @@ export class RefugioService {
   async findByUsuarioId(usuarioId: number): Promise<Refugio | null> {
     return this.refugioRepository.findOne({
       where: { usuario: { id: usuarioId } },
-      relations:['mascotas']
+      relations:['mascotas', 'usuario']
     });
   }
 
