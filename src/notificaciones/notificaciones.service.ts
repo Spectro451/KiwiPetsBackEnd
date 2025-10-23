@@ -11,10 +11,8 @@ export class NotificacionesService {
   ) {}
 
   //Get
-  async findAll(offset = 0, limit = 20): Promise<Notificaciones[]> {
+  async findAll(): Promise<Notificaciones[]> {
     return this.notificacionesRepository.find({
-      skip: offset, 
-      take: limit,
       order: { fecha: 'DESC' },
       relations: ['usuario'],
     });
@@ -49,12 +47,9 @@ export class NotificacionesService {
     await this.notificacionesRepository.remove(notificaciones);
   }
 
-  //busca por usuario
-  async findByUsuario(usuarioId: number, offset = 0, limit = 20): Promise<Notificaciones[]> {
+  async findByUsuario(usuarioId: number): Promise<Notificaciones[]> {
     return this.notificacionesRepository.find({
       where: { usuario: { id: usuarioId } },
-      skip: offset,
-      take: limit,
       order: { fecha: 'DESC' },
       relations: ['usuario'],
     });

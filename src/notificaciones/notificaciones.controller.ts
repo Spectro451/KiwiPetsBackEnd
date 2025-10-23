@@ -9,18 +9,11 @@ export class NotificacionesController {
   constructor(private readonly notificacionesService: NotificacionesService){}
 
   @Get()
-  async findAll(
-    @Request() request,
-    @Query('offset') offsetStr?: string,
-    @Query('limit') limitStr?: string
-  ): Promise<Notificaciones[]> {
-    const offset = parseInt(offsetStr ?? '0');
-    const limit = parseInt(limitStr ?? '20');
-
+  async findAll(@Request() request): Promise<Notificaciones[]> {
     if (request.user.admin) {
-      return this.notificacionesService.findAll(offset, limit);
+      return this.notificacionesService.findAll();
     }
-    return this.notificacionesService.findByUsuario(request.user.id, offset, limit);
+    return this.notificacionesService.findByUsuario(request.user.id);
   }
 
   @Get(':id')
