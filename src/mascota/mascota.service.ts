@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Adopcion, EstadoAdopcion } from '../adopcion/adopcion.entity';
 import { Refugio } from 'src/refugio/refugio.entity';
+import { Notificaciones } from 'src/notificaciones/notificaciones.entity';
 
 @Injectable()
 export class MascotaService {
@@ -12,6 +13,8 @@ export class MascotaService {
     private readonly mascotaRepository: Repository<Mascota>,
     @InjectRepository(Adopcion)
     private readonly adopcionRepository: Repository<Adopcion>,
+    @InjectRepository(Notificaciones)
+    private readonly notificacionRepository: Repository<Notificaciones>,
   ) {}
 
   async findAll(): Promise<Mascota[]> {
@@ -81,7 +84,37 @@ export class MascotaService {
 
   //transferir
   async transferir(mascota: Mascota, refugioDestino: Refugio): Promise<Mascota> {
-  mascota.refugio = refugioDestino;
-  return this.mascotaRepository.save(mascota);
+    const refugioOrigen = mascota.refugio;
+
+    // actualiza el refugio
+    mascota.refugio = refugioDestino;
+    await this.mascotaRepository.save(mascota);
+
+    // transfiere las solicitudes de la mascota a el nuevo refugio
+    await this.adopcionRepository.update(
+      { mascota: { id_mascota: mascota.id_mascota } },
+      { refugio: refugioDestino }
+    );
+
+    // Borrar las notificaciones antiguas
+    await this.notificacionRepository
+      .createQueryBuilder()
+      .delete()
+      .where("usuarioId = :usuarioId", { usuarioId: refugioOrigen.usuario.id })
+      .andWhere(
+        "adopcionId IN (SELECT id FROM adopcion WHERE \"mascotaIdMascota\" = :mascotaId)",
+        { mascotaId: mascota.id_mascota }
+      )
+      .execute();
+
+    // Crea una notificacion de aviso
+    await this.notificacionRepository.save({
+      usuario: refugioDestino.usuario,
+      mensaje: `Has recibido la mascota "${mascota.nombre}" de parte de "${refugioOrigen.nombre}".`,
+      leido: false,
+      fecha: new Date(),
+    });
+
+    return mascota;
   }
 }
