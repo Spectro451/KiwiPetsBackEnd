@@ -19,7 +19,7 @@ const connectionOptions = process.env.DATABASE_URL
       synchronize: true,
       logging: false,
       entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
-      ssl: { rejectUnauthorized: false }, // <-- esto habilita SSL
+      ssl: { rejectUnauthorized: false },
     }
   : {
       type: 'postgres' as const,
@@ -31,7 +31,7 @@ const connectionOptions = process.env.DATABASE_URL
       synchronize: true,
       logging: false,
       entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
-      ssl: { rejectUnauthorized: false }, // <-- también aquí si usas host/pass
+      ssl: { rejectUnauthorized: false },
     };
 
 const AppDataSource = new DataSource(connectionOptions);
