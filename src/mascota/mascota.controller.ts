@@ -5,12 +5,14 @@ import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RefugioService } from 'src/refugio/refugio.service';
+import { AdoptanteService } from 'src/adoptante/adoptante.service';
 
 @Controller('mascota')
 export class MascotaController {
   constructor(
     private readonly mascotaService: MascotaService,
     private readonly refugioService: RefugioService,
+    private readonly adoptanteService: AdoptanteService,
   ){}
 
   @UseGuards(JwtAuthguard, RolesGuard)
