@@ -46,6 +46,18 @@ export class Adoptante{
   @Column({ type: "varchar", length: 255 })
   direccion: string;
 
+  @Column({ type: "varchar", length: 255, nullable: true })
+  comuna?: string;
+
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  latitud?: number;
+
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  longitud?: number;
+  
+  @Column({ type: "int", default: 5 })
+  radio_busqueda: number;
+
   @Column({ type: "varchar", length: 3, nullable: true, default: 'No' })
   experiencia_mascotas: string;
 

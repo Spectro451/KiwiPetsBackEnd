@@ -5,12 +5,14 @@ import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RefugioService } from 'src/refugio/refugio.service';
+import { AdoptanteService } from 'src/adoptante/adoptante.service';
 
 @Controller('mascota')
 export class MascotaController {
   constructor(
     private readonly mascotaService: MascotaService,
     private readonly refugioService: RefugioService,
+    private readonly adoptanteService: AdoptanteService,
   ){}
 
   @UseGuards(JwtAuthguard, RolesGuard)
@@ -126,5 +128,20 @@ export class MascotaController {
       mascotasActualizadas.push(mascotaTransferida);
     }
     return mascotasActualizadas;
+  }
+
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Adoptante')
+  @Get('cercanas')
+  async getMascotasCercanas(@Request() request) {
+    const adoptante = (await this.adoptanteService.findByUsuarioId(request.user.id))!;
+    if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
+
+    const { latitud, longitud, radio_busqueda } = adoptante;
+    if (latitud == null || longitud == null || radio_busqueda == null) {
+      throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
+    }
+
+    return this.mascotaService.busquedaRadio(latitud, longitud, radio_busqueda);
   }
 }
