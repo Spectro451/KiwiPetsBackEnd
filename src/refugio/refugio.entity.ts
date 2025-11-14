@@ -13,6 +13,15 @@ export class Refugio {
 
   @Column({ type: "varchar", length: 255 })
   direccion: string;
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  comuna?: string;
+
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  latitud?: number;
+
+  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  longitud?: number;
   
   @Column({ type: "varchar", length: 255 })
   telefono: string;

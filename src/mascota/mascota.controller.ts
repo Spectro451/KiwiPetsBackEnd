@@ -5,13 +5,41 @@ import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RefugioService } from 'src/refugio/refugio.service';
+import { AdoptanteService } from 'src/adoptante/adoptante.service';
+import { Query } from '@nestjs/common';
 
 @Controller('mascota')
 export class MascotaController {
   constructor(
     private readonly mascotaService: MascotaService,
     private readonly refugioService: RefugioService,
+    private readonly adoptanteService: AdoptanteService,
   ){}
+
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Adoptante')
+  @Get('cercanas')
+  async getMascotasCercanas(
+    @Request() request,
+    @Query('radio') radio?: string
+  ) {
+    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
+    if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
+
+    const { latitud, longitud, radio_busqueda } = adoptante;
+
+    if (latitud == null || longitud == null || radio_busqueda == null) {
+      throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
+    }
+
+    const radioFinal = Number(radio ?? radio_busqueda);
+
+    return this.mascotaService.busquedaRadio(
+      Number(latitud),
+      Number(longitud),
+      radioFinal
+    );
+  }
 
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante', 'Refugio')
@@ -37,7 +65,6 @@ export class MascotaController {
     const mascota = await this.mascotaService.findOne(id);
     if (!mascota) throw new NotFoundException(`Mascota con ID ${id} no encontrada`);
 
-    //if super largo que basicamente revisa que sea admin, refugio o en su defecto que busque solo los de mi refugio
     if (!request.user.admin && request.user.tipo === 'Refugio' && mascota.refugio.usuario.id !== request.user.id) {
       throw new ForbiddenException('No puedes acceder a esta mascota');
     }
@@ -49,12 +76,10 @@ export class MascotaController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   async create(@Body() mascotaData: Partial<Mascota>, @Request() request): Promise<Mascota> {
-
     const refugio = await this.refugioService.findByUsuarioId(request.user.id);
     if (!refugio) {
       throw new ForbiddenException('Este usuario no tiene un refugio asociado');
     }
-
     if (!refugio.validado) {
       throw new ForbiddenException('No puedes añadir mascotas si no estás validado, contacta con un administrador');
     }
@@ -72,9 +97,8 @@ export class MascotaController {
     @Request() request,
   ): Promise<Mascota> {
     const mascota = await this.mascotaService.findOne(id);
-    if(!mascota){
-      throw new NotFoundException('Mascota no encontrada');
-    }
+    if(!mascota) throw new NotFoundException('Mascota no encontrada');
+
     if(request.user.tipo==='Refugio'){
       const refugio = await this.refugioService.findByUsuarioId(request.user.id);
       if(!refugio || mascota.refugio.id !== refugio.id){
@@ -108,11 +132,8 @@ export class MascotaController {
     @Body() body: { mascotasIds: number[], refugioDestinoId: number },
     @Request() request
   ): Promise<Mascota[]> {
-
     const refugio = await this.refugioService.findByUsuarioId(request.user.id);
-    if (!refugio) {
-      throw new ForbiddenException('No se encontro el refugio');
-    }
+    if (!refugio) throw new ForbiddenException('No se encontro el refugio');
 
     const refugioDestino = await this.refugioService.findOne(body.refugioDestinoId);
     const mascotasActualizadas: Mascota[] = [];

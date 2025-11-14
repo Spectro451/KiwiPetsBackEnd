@@ -117,4 +117,27 @@ export class MascotaService {
 
     return mascota;
   }
+
+  async busquedaRadio(
+    lat: number,
+    lon: number,
+    radio: number
+  ): Promise<Mascota[]> {
+    return this.mascotaRepository
+      .createQueryBuilder('mascota')
+      .leftJoinAndSelect('mascota.vacunas', 'vacunas')
+      .leftJoinAndSelect('mascota.historialClinico', 'historialClinico')
+      .leftJoinAndSelect('mascota.refugio', 'refugio')
+      .leftJoinAndSelect('refugio.usuario', 'usuario')
+      .where(`
+        (6371 * acos(
+          cos(radians(:lat)) *
+          cos(radians(CAST(refugio.latitud AS double precision))) *
+          cos(radians(CAST(refugio.longitud AS double precision)) - radians(:lon)) +
+          sin(radians(:lat)) *
+          sin(radians(CAST(refugio.latitud AS double precision)))
+        )) <= :radio
+      `, { lat, lon, radio })
+      .getMany();
+  }
 }
