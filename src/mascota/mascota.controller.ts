@@ -133,24 +133,20 @@ export class MascotaController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante')
   @Get('cercanas')
-  async getMascotasCercanas(
-    @Request() request,
-    @Query('radio') radioTemporal?: string,
-  ) {
+  async getMascotasCercanas(@Request() request) {
     const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
     if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
 
-    let { latitud, longitud, radio_busqueda } = adoptante;
+    const { latitud, longitud, radio_busqueda } = adoptante;
 
     if (latitud == null || longitud == null || radio_busqueda == null) {
       throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
     }
 
-    // Convertir a números
-    const lat = Number(latitud);
-    const lon = Number(longitud);
-    const radio = radioTemporal ? Math.min(Number(radioTemporal), 40) : Number(radio_busqueda);
-
-    return this.mascotaService.busquedaRadio(lat, lon, radio);
+    return this.mascotaService.busquedaRadio(
+      Number(latitud),
+      Number(longitud),
+      Number(radio_busqueda)
+    );
   }
 }
