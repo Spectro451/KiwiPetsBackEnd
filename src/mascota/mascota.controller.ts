@@ -6,6 +6,7 @@ import { RolesGuard } from 'src/auth/roles.guard';
 import { Roles } from 'src/auth/roles.decorator';
 import { RefugioService } from 'src/refugio/refugio.service';
 import { AdoptanteService } from 'src/adoptante/adoptante.service';
+import { Query } from '@nestjs/common';
 
 @Controller('mascota')
 export class MascotaController {
@@ -18,7 +19,10 @@ export class MascotaController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante')
   @Get('cercanas')
-  async getMascotasCercanas(@Request() request) {
+  async getMascotasCercanas(
+    @Request() request,
+    @Query('radio') radio?: string
+  ) {
     const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
     if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
 
@@ -28,10 +32,12 @@ export class MascotaController {
       throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
     }
 
+    const radioFinal = Number(radio ?? radio_busqueda);
+
     return this.mascotaService.busquedaRadio(
       Number(latitud),
       Number(longitud),
-      Number(radio_busqueda)
+      radioFinal
     );
   }
 
