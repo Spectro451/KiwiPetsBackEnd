@@ -137,17 +137,20 @@ export class MascotaController {
     @Request() request,
     @Query('radio') radioTemporal?: string,
   ) {
-    const adoptante = (await this.adoptanteService.findByUsuarioId(request.user.id))!;
+    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
     if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
 
-    const { latitud, longitud, radio_busqueda } = adoptante;
+    let { latitud, longitud, radio_busqueda } = adoptante;
+
     if (latitud == null || longitud == null || radio_busqueda == null) {
       throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
     }
 
-    const temporalNum = radioTemporal != null ? Number(radioTemporal) : undefined;
-    const radio = temporalNum != null ? Math.min(temporalNum, 40) : radio_busqueda;
+    // Convertir a números
+    const lat = Number(latitud);
+    const lon = Number(longitud);
+    const radio = radioTemporal ? Math.min(Number(radioTemporal), 40) : Number(radio_busqueda);
 
-    return this.mascotaService.busquedaRadio(latitud, longitud, radio);
+    return this.mascotaService.busquedaRadio(lat, lon, radio);
   }
 }
