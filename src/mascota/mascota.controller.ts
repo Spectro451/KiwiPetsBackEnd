@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, NotFoundException, Param, ParseIntPipe, Post, Put, Request, UseGuards } from '@nestjs/common';
 import { MascotaService } from './mascota.service';
 import { Mascota } from './mascota.entity';
 import { JwtAuthguard } from 'src/auth/jwt-auth.guard';
@@ -14,6 +14,26 @@ export class MascotaController {
     private readonly refugioService: RefugioService,
     private readonly adoptanteService: AdoptanteService,
   ){}
+
+  @UseGuards(JwtAuthguard, RolesGuard)
+  @Roles('Adoptante')
+  @Get('cercanas')
+  async getMascotasCercanas(@Request() request) {
+    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
+    if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
+
+    const { latitud, longitud, radio_busqueda } = adoptante;
+
+    if (latitud == null || longitud == null || radio_busqueda == null) {
+      throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
+    }
+
+    return this.mascotaService.busquedaRadio(
+      Number(latitud),
+      Number(longitud),
+      Number(radio_busqueda)
+    );
+  }
 
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Adoptante', 'Refugio')
@@ -39,7 +59,6 @@ export class MascotaController {
     const mascota = await this.mascotaService.findOne(id);
     if (!mascota) throw new NotFoundException(`Mascota con ID ${id} no encontrada`);
 
-    //if super largo que basicamente revisa que sea admin, refugio o en su defecto que busque solo los de mi refugio
     if (!request.user.admin && request.user.tipo === 'Refugio' && mascota.refugio.usuario.id !== request.user.id) {
       throw new ForbiddenException('No puedes acceder a esta mascota');
     }
@@ -51,12 +70,10 @@ export class MascotaController {
   @UseGuards(JwtAuthguard, RolesGuard)
   @Roles('Refugio')
   async create(@Body() mascotaData: Partial<Mascota>, @Request() request): Promise<Mascota> {
-
     const refugio = await this.refugioService.findByUsuarioId(request.user.id);
     if (!refugio) {
       throw new ForbiddenException('Este usuario no tiene un refugio asociado');
     }
-
     if (!refugio.validado) {
       throw new ForbiddenException('No puedes añadir mascotas si no estás validado, contacta con un administrador');
     }
@@ -74,9 +91,8 @@ export class MascotaController {
     @Request() request,
   ): Promise<Mascota> {
     const mascota = await this.mascotaService.findOne(id);
-    if(!mascota){
-      throw new NotFoundException('Mascota no encontrada');
-    }
+    if(!mascota) throw new NotFoundException('Mascota no encontrada');
+
     if(request.user.tipo==='Refugio'){
       const refugio = await this.refugioService.findByUsuarioId(request.user.id);
       if(!refugio || mascota.refugio.id !== refugio.id){
@@ -110,11 +126,8 @@ export class MascotaController {
     @Body() body: { mascotasIds: number[], refugioDestinoId: number },
     @Request() request
   ): Promise<Mascota[]> {
-
     const refugio = await this.refugioService.findByUsuarioId(request.user.id);
-    if (!refugio) {
-      throw new ForbiddenException('No se encontro el refugio');
-    }
+    if (!refugio) throw new ForbiddenException('No se encontro el refugio');
 
     const refugioDestino = await this.refugioService.findOne(body.refugioDestinoId);
     const mascotasActualizadas: Mascota[] = [];
@@ -128,25 +141,5 @@ export class MascotaController {
       mascotasActualizadas.push(mascotaTransferida);
     }
     return mascotasActualizadas;
-  }
-
-  @UseGuards(JwtAuthguard, RolesGuard)
-  @Roles('Adoptante')
-  @Get('cercanas')
-  async getMascotasCercanas(@Request() request) {
-    const adoptante = await this.adoptanteService.findByUsuarioId(request.user.id);
-    if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
-
-    const { latitud, longitud, radio_busqueda } = adoptante;
-
-    if (latitud == null || longitud == null || radio_busqueda == null) {
-      throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
-    }
-
-    return this.mascotaService.busquedaRadio(
-      Number(latitud),
-      Number(longitud),
-      Number(radio_busqueda)
-    );
   }
 }
