@@ -135,7 +135,7 @@ export class MascotaController {
   @Get('cercanas')
   async getMascotasCercanas(
     @Request() request,
-    @Query('radio') radioTemporal?: number,
+    @Query('radio') radioTemporal?: string,
   ) {
     const adoptante = (await this.adoptanteService.findByUsuarioId(request.user.id))!;
     if (!adoptante) throw new NotFoundException('Adoptante no encontrado');
@@ -145,8 +145,9 @@ export class MascotaController {
       throw new Error('El adoptante no tiene latitud, longitud o radio configurado');
     }
 
-    const radio = radioTemporal != null ? Math.min(radioTemporal, 40) : radio_busqueda;
+    const temporalNum = radioTemporal != null ? Number(radioTemporal) : undefined;
+    const radio = temporalNum != null ? Math.min(temporalNum, 40) : radio_busqueda;
+
     return this.mascotaService.busquedaRadio(latitud, longitud, radio);
   }
-
 }
