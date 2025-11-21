@@ -1,14 +1,22 @@
-import { Entity, PrimaryColumn,Column, OneToMany, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Adopcion } from "../adopcion/adopcion.entity";
-import { Favoritos } from "../favoritos/favoritos.entity";
-import { Usuario } from "../usuario/usuario.entity";
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  OneToMany,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Adopcion } from '../adopcion/adopcion.entity';
+import { Favoritos } from '../favoritos/favoritos.entity';
+import { Usuario } from '../usuario/usuario.entity';
 
 export enum EspeciePreferida {
   GATO = 'Gato',
   PERRO = 'Perro',
-  AVE='Ave',
-  REPTIL='Reptil',
-  CUALQUIERA='Cualquiera',
+  AVE = 'Ave',
+  REPTIL = 'Reptil',
+  CUALQUIERA = 'Cualquiera',
 }
 export enum Vivienda {
   CASA_PATIO = 'Casa con patio',
@@ -27,66 +35,90 @@ export enum Edad {
   ADULTO = 'Adulto',
 }
 @Entity()
-export class Adoptante{
+export class Adoptante {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({type:"varchar", length:100, unique:true})
+  @Column({ type: 'varchar', length: 100, unique: true })
   rut: string;
-  
-  @Column({ type: "varchar", length: 255 })
+
+  @Column({ type: 'varchar', length: 255 })
   nombre: string;
 
-  @Column({ type: "int" })
+  @Column({ type: 'int' })
   edad: number;
-  
-  @Column({ type: "varchar", length: 255 })
+
+  @Column({ type: 'varchar', length: 255 })
   telefono: string;
 
-  @Column({ type: "varchar", length: 255 })
+  @Column({ type: 'varchar', length: 255 })
   direccion: string;
 
-  @Column({ type: "varchar", length: 255, nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+    default: 'Providencia',
+  })
   comuna?: string;
 
-  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+    default: -33.424576,
+  })
   latitud?: number;
 
-  @Column({ type: "decimal", precision: 10, scale: 7, nullable: true })
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 7,
+    nullable: true,
+    default: -70.61199,
+  })
   longitud?: number;
-  
-  @Column({ type: "int", default: 5 })
+
+  @Column({ type: 'int', default: 5 })
   radio_busqueda: number;
 
-  @Column({ type: "varchar", length: 3, nullable: true, default: 'No' })
+  @Column({ type: 'varchar', length: 3, nullable: true, default: 'No' })
   experiencia_mascotas: string;
 
-  @Column({ type: "int", nullable: true })
+  @Column({ type: 'int', nullable: true })
   cantidad_mascotas?: number;
 
-  @Column({type:'enum', enum:EspeciePreferida})
+  @Column({ type: 'enum', enum: EspeciePreferida })
   especie_preferida: EspeciePreferida;
 
-  @Column({type:'enum', enum:Vivienda})
+  @Column({ type: 'enum', enum: Vivienda })
   tipo_vivienda: Vivienda;
 
-  @Column({type:'enum', enum:Sexo})
+  @Column({ type: 'enum', enum: Sexo })
   sexo: Sexo;
 
-  @Column({type:'enum', enum:Edad})
+  @Column({ type: 'enum', enum: Edad })
   edad_buscada: Edad;
 
-  @Column({ type: "text" })
+  @Column({ type: 'text' })
   motivo_adopcion: string;
 
-  @OneToMany(() => Adopcion, adopcion => adopcion.adoptante, { cascade: true, onDelete: 'CASCADE' })
+  @OneToMany(() => Adopcion, (adopcion) => adopcion.adoptante, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   adopciones?: Adopcion[];
 
-  @OneToMany(() => Favoritos, favorito => favorito.adoptante, { cascade: true, onDelete: 'CASCADE' })
+  @OneToMany(() => Favoritos, (favorito) => favorito.adoptante, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   favoritos?: Favoritos[];
 
-  @OneToOne(() => Usuario, usuario => usuario.adoptante, { onDelete: 'CASCADE' })
+  @OneToOne(() => Usuario, (usuario) => usuario.adoptante, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   usuario: Usuario;
-
 }
