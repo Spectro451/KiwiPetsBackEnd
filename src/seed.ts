@@ -12,14 +12,14 @@ import { Favoritos } from './favoritos/favoritos.entity';
 import { Notificaciones } from './notificaciones/notificaciones.entity';
 import { Adopcion, EstadoAdopcion } from './adopcion/adopcion.entity';
 
-const connectionOptions = process.env.DATABASE_URL
+const connectionOptions = process.env.DATABASE_URL 
   ? {
       type: 'postgres' as const,
       url: process.env.DATABASE_URL,
       synchronize: true,
       logging: false,
       entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
-      ssl: { rejectUnauthorized: false }, // <-- esto habilita SSL
+      ssl: { rejectUnauthorized: false },
     }
   : {
       type: 'postgres' as const,
@@ -31,7 +31,7 @@ const connectionOptions = process.env.DATABASE_URL
       synchronize: true,
       logging: false,
       entities: [Usuario, Refugio, Adoptante, Mascota, Vacunas, Historial, Favoritos, Notificaciones, Adopcion],
-      ssl: { rejectUnauthorized: false }, // <-- también aquí si usas host/pass
+      ssl: { rejectUnauthorized: false },
     };
 
 const AppDataSource = new DataSource(connectionOptions);

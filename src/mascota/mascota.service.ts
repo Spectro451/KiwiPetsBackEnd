@@ -132,10 +132,10 @@ export class MascotaService {
       .where(`
         (6371 * acos(
           cos(radians(:lat)) *
-          cos(radians(refugio.latitud)) *
-          cos(radians(refugio.longitud) - radians(:lon)) +
+          cos(radians(CAST(refugio.latitud AS double precision))) *
+          cos(radians(CAST(refugio.longitud AS double precision)) - radians(:lon)) +
           sin(radians(:lat)) *
-          sin(radians(refugio.latitud))
+          sin(radians(CAST(refugio.latitud AS double precision)))
         )) <= :radio
       `, { lat, lon, radio })
       .getMany();
