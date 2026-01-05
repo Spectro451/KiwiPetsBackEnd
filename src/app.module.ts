@@ -17,11 +17,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({isGlobal:true}),
+    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports:[ConfigModule],
-      inject:[ConfigService],
-      useFactory:(config:ConfigService)=>({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
         type: 'postgres',
         host: config.get<string>('POSTGRES_HOST'),
         port: Number(config.get<number>('POSTGRES_PORT')),
@@ -30,9 +30,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         database: config.get<string>('POSTGRES_DB'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
-        ssl: {
-          rejectUnauthorized: false,
-        },
+        ssl: false,
       }),
     }),
     JwtModule.registerAsync({
@@ -40,7 +38,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: Number(config.get<number>('JWT_EXPIRATION')) },
+        signOptions: {
+          expiresIn: Number(config.get<number>('JWT_EXPIRATION')),
+        },
       }),
     }),
     MascotaModule,
@@ -54,10 +54,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     NotificacionesModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    JwtStrategy,
-  ],
+  providers: [AppService, JwtStrategy],
 })
 export class AppModule {}
-
